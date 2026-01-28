@@ -174,18 +174,12 @@ export default function App() {
             {/* Desktop Sidebar */}
             <div className="hidden lg:flex lg:flex-col lg:w-64 lg:fixed lg:inset-y-0 lg:bg-white lg:border-r lg:border-gray-200">
               <div className="flex flex-col flex-grow pt-5 pb-4 overflow-y-auto">
-                <div className="flex items-center flex-shrink-0 px-4 mb-6">
+                <div className="flex items-center justify-center flex-shrink-0 px-4 mb-8">
                   {storeSettings?.logo ? (
-                    <img src={storeSettings.logo} alt="Logo" className="h-16 w-16 object-contain mr-3 flex-shrink-0" />
+                    <img src={storeSettings.logo} alt="Logo" className="h-16 w-16 object-contain flex-shrink-0" />
                   ) : (
-                    <span className="text-3xl mr-3">🏪</span>
+                    <span className="text-4xl">🏪</span>
                   )}
-                  <div>
-                    <h1 className="text-lg font-bold text-gray-900">{storeSettings?.storeTitle || "DUBAI BORKA HOUSE"}</h1>
-                    {storeSettings?.tagline && (
-                      <p className="text-xs text-gray-600">{storeSettings.tagline}</p>
-                    )}
-                  </div>
                 </div>
                 <nav className="mt-5 flex-1 px-2 space-y-1">
                   {desktopMenuItems.map((item) => (
