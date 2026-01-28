@@ -645,22 +645,22 @@ export function Settings() {
       {activeTab === "backup" && (
         <div className="space-y-4 sm:space-y-6">
           <div className="bg-white rounded-lg shadow p-4 sm:p-6 border border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Backup & Restore</h3>
+            <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-6">Backup & Restore</h3>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-              {/* Export Data */}
-              <div className="border border-gray-200 rounded-lg p-4">
-                <h4 className="font-medium text-gray-900 mb-2 flex items-center">
-                  <span className="mr-2">📤</span>
-                  Export Data
-                </h4>
-                <p className="text-sm text-gray-600 mb-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-6">
+              {/* Export Data Card */}
+              <div className="border border-gray-200 rounded-lg p-4 sm:p-6 hover:shadow-md transition-shadow">
+                <div className="flex items-start gap-3 mb-4">
+                  <span className="text-2xl">📤</span>
+                  <h4 className="font-semibold text-gray-900">Export Data</h4>
+                </div>
+                <p className="text-xs sm:text-sm text-gray-600 mb-4">
                   Download a complete backup of your store data including products, sales, and customers.
                 </p>
                 <button
                   onClick={exportData}
                   disabled={isExporting || !exportAllData}
-                  className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 font-medium"
+                  className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 font-medium text-sm transition-colors"
                 >
                   {isExporting ? (
                     <div className="flex items-center justify-center">
@@ -668,18 +668,18 @@ export function Settings() {
                       Exporting...
                     </div>
                   ) : (
-                    "Export All Data"
+                    "📥 Export All Data"
                   )}
                 </button>
               </div>
 
-              {/* Import Data */}
-              <div className="border border-gray-200 rounded-lg p-4">
-                <h4 className="font-medium text-gray-900 mb-2 flex items-center">
-                  <span className="mr-2">📥</span>
-                  Import Data
-                </h4>
-                <p className="text-sm text-gray-600 mb-4">
+              {/* Import Data Card */}
+              <div className="border border-gray-200 rounded-lg p-4 sm:p-6 hover:shadow-md transition-shadow">
+                <div className="flex items-start gap-3 mb-4">
+                  <span className="text-2xl">📥</span>
+                  <h4 className="font-semibold text-gray-900">Import Data</h4>
+                </div>
+                <p className="text-xs sm:text-sm text-gray-600 mb-4">
                   Restore your store data from a previously exported backup file.
                 </p>
                 <input
@@ -687,10 +687,10 @@ export function Settings() {
                   accept=".json"
                   onChange={handleFileImport}
                   disabled={isImporting}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs sm:file:text-sm file:font-medium file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100"
                 />
                 {isImporting && (
-                  <div className="mt-2 flex items-center text-sm text-gray-600">
+                  <div className="mt-2 flex items-center text-xs sm:text-sm text-gray-600">
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-purple-600 mr-2"></div>
                     Importing data...
                   </div>
@@ -698,12 +698,12 @@ export function Settings() {
               </div>
             </div>
 
-            <div className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-              <div className="flex items-start">
-                <span className="text-yellow-600 mr-2">⚠️</span>
+            <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+              <div className="flex flex-col sm:flex-row sm:items-start gap-3">
+                <span className="text-yellow-600 text-xl flex-shrink-0">⚠️</span>
                 <div>
-                  <h4 className="font-medium text-yellow-800">Important Notes:</h4>
-                  <ul className="text-sm text-yellow-700 mt-1 space-y-1">
+                  <h4 className="font-medium text-yellow-800 text-sm sm:text-base">Important Notes:</h4>
+                  <ul className="text-xs sm:text-sm text-yellow-700 mt-2 space-y-1">
                     <li>• Always backup your data before importing</li>
                     <li>• Import will overwrite existing data</li>
                     <li>• Only import files from DUBAI BORKA HOUSE</li>
@@ -828,52 +828,55 @@ export function Settings() {
           </div>
 
           <div className="bg-white rounded-lg shadow p-4 sm:p-6 border border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">System Maintenance</h3>
+            <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-6">System Maintenance</h3>
             
-            <div className="space-y-4">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 border border-gray-200 rounded-lg space-y-2 sm:space-y-0">
-                <div>
-                  <h4 className="font-medium text-gray-900">Clear Cache</h4>
-                  <p className="text-sm text-gray-600">Clear application cache to improve performance</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+              {/* Clear Cache Card */}
+              <div className="border border-gray-200 rounded-lg p-4 sm:p-6 hover:shadow-md transition-shadow">
+                <div className="mb-4">
+                  <h4 className="font-semibold text-gray-900 text-sm sm:text-base">🧹 Clear Cache</h4>
+                  <p className="text-xs sm:text-sm text-gray-600 mt-2">Clear application cache to improve performance and free up memory</p>
                 </div>
                 <button
                   onClick={clearCache}
-                  className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 font-medium"
+                  className="w-full px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg font-medium text-sm transition-colors"
                 >
                   Clear Cache
                 </button>
               </div>
 
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 border border-gray-200 rounded-lg space-y-2 sm:space-y-0">
-                <div>
-                  <h4 className="font-medium text-gray-900">Optimize Database</h4>
-                  <p className="text-sm text-gray-600">Optimize database for better performance</p>
+              {/* Optimize Database Card */}
+              <div className="border border-blue-200 rounded-lg p-4 sm:p-6 bg-blue-50 hover:shadow-md transition-shadow">
+                <div className="mb-4">
+                  <h4 className="font-semibold text-blue-900 text-sm sm:text-base">⚙️ Optimize Database</h4>
+                  <p className="text-xs sm:text-sm text-blue-700 mt-2">Optimize database for better query performance and efficiency</p>
                 </div>
                 <button
                   onClick={optimizeDatabase}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium"
+                  className="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium text-sm transition-colors"
                 >
                   Optimize
                 </button>
               </div>
 
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 border border-red-200 rounded-lg bg-red-50 space-y-2 sm:space-y-0">
-                <div>
-                  <h4 className="font-medium text-red-900">Reset Application to Default</h4>
-                  <p className="text-sm text-red-600">⚠️ This will delete ALL data permanently and restore default configuration</p>
+              {/* Reset Application Card */}
+              <div className="border border-red-200 rounded-lg p-4 sm:p-6 bg-red-50 hover:shadow-md transition-shadow">
+                <div className="mb-4">
+                  <h4 className="font-semibold text-red-900 text-sm sm:text-base">🔄 Reset to Default</h4>
+                  <p className="text-xs sm:text-sm text-red-700 mt-2">⚠️ Permanently delete all data and restore defaults</p>
                 </div>
                 <button
                   onClick={resetApplication}
                   disabled={isResetting}
-                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:bg-red-400 font-medium"
+                  className="w-full px-4 py-2 bg-red-600 hover:bg-red-700 disabled:bg-red-400 text-white rounded-lg font-medium text-sm transition-colors"
                 >
                   {isResetting ? (
-                    <div className="flex items-center">
+                    <div className="flex items-center justify-center">
                       <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
                       Resetting...
                     </div>
                   ) : (
-                    "Reset to Default"
+                    "Reset Application"
                   )}
                 </button>
               </div>
@@ -882,24 +885,28 @@ export function Settings() {
 
           {/* Performance Metrics */}
           <div className="bg-white rounded-lg shadow p-4 sm:p-6 border border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Performance Metrics</h3>
+            <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-6">Performance Metrics</h3>
             
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="p-4 bg-blue-50 rounded-lg">
-                <div className="text-2xl font-bold text-blue-600">99.9%</div>
-                <div className="text-sm text-blue-800">Uptime</div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+              <div className="p-4 sm:p-6 bg-blue-50 rounded-lg border border-blue-200 hover:shadow-md transition-shadow">
+                <div className="text-2xl sm:text-3xl font-bold text-blue-600 mb-1">99.9%</div>
+                <div className="text-xs sm:text-sm text-blue-800 font-medium">Uptime</div>
+                <p className="text-xs text-blue-600 mt-2">Last 30 days</p>
               </div>
-              <div className="p-4 bg-green-50 rounded-lg">
-                <div className="text-2xl font-bold text-green-600">1.2s</div>
-                <div className="text-sm text-green-800">Avg Response</div>
+              <div className="p-4 sm:p-6 bg-green-50 rounded-lg border border-green-200 hover:shadow-md transition-shadow">
+                <div className="text-2xl sm:text-3xl font-bold text-green-600 mb-1">1.2s</div>
+                <div className="text-xs sm:text-sm text-green-800 font-medium">Avg Response</div>
+                <p className="text-xs text-green-600 mt-2">API latency</p>
               </div>
-              <div className="p-4 bg-purple-50 rounded-lg">
-                <div className="text-2xl font-bold text-purple-600">2.4MB</div>
-                <div className="text-sm text-purple-800">Storage Used</div>
+              <div className="p-4 sm:p-6 bg-purple-50 rounded-lg border border-purple-200 hover:shadow-md transition-shadow">
+                <div className="text-2xl sm:text-3xl font-bold text-purple-600 mb-1">2.4MB</div>
+                <div className="text-xs sm:text-sm text-purple-800 font-medium">Storage Used</div>
+                <p className="text-xs text-purple-600 mt-2">Cache size</p>
               </div>
-              <div className="p-4 bg-orange-50 rounded-lg">
-                <div className="text-2xl font-bold text-orange-600">1,234</div>
-                <div className="text-sm text-orange-800">Total Records</div>
+              <div className="p-4 sm:p-6 bg-orange-50 rounded-lg border border-orange-200 hover:shadow-md transition-shadow">
+                <div className="text-2xl sm:text-3xl font-bold text-orange-600 mb-1">1,234</div>
+                <div className="text-xs sm:text-sm text-orange-800 font-medium">Total Records</div>
+                <p className="text-xs text-orange-600 mt-2">Database size</p>
               </div>
             </div>
           </div>
