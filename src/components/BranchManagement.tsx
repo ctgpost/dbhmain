@@ -145,19 +145,20 @@ export function BranchManagement() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50">
+      <div className="space-y-6 p-4 sm:p-6 max-w-7xl mx-auto">
       {/* Header */}
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">🏢 Branch Management</h2>
-          <p className="text-gray-600">Manage multiple locations and showrooms</p>
+          <h1 className="text-3xl sm:text-4xl font-bold text-gray-900">🏢 Branch Management</h1>
+          <p className="text-sm text-gray-600 mt-1">Manage multiple locations and showrooms</p>
         </div>
         <button
           onClick={() => {
             resetForm();
             setShowAddBranch(true);
           }}
-          className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+          className="px-6 py-3 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white rounded-2xl font-semibold transition-all duration-300 flex items-center justify-center gap-2 sm:w-auto w-full"
         >
           + Add Branch
         </button>
@@ -166,44 +167,44 @@ export function BranchManagement() {
       {/* Stats Overview */}
       {branchStats && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-          <div className="bg-white rounded-lg shadow p-4 border border-gray-200">
-            <div className="text-2xl font-bold text-blue-600">
+          <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-sm border border-white/60 p-5 hover:shadow-md transition-all duration-300">
+            <div className="text-2xl font-bold text-blue-700">
               {selectedBranch ? branchStats.totalSales : branchStats.totalBranches}
             </div>
-            <div className="text-sm text-gray-600">
+            <div className="text-xs text-gray-600 font-semibold uppercase tracking-wide mt-2">
               {selectedBranch ? "Total Sales" : "Active Branches"}
             </div>
           </div>
-          <div className="bg-white rounded-lg shadow p-4 border border-gray-200">
-            <div className="text-2xl font-bold text-green-600">
+          <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-sm border border-white/60 p-5 hover:shadow-md transition-all duration-300">
+            <div className="text-2xl font-bold text-green-700">
               ৳{branchStats.totalRevenue?.toLocaleString('en-BD') || 0}
             </div>
             <div className="text-sm text-gray-600">Total Revenue</div>
           </div>
           <div className="bg-white rounded-lg shadow p-4 border border-gray-200">
-            <div className="text-2xl font-bold text-purple-600">
+            <div className="text-2xl font-bold text-purple-700">
               {branchStats.totalEmployees || 0}
             </div>
-            <div className="text-sm text-gray-600">Employees</div>
+            <div className="text-xs text-gray-600 font-semibold uppercase tracking-wide mt-2">Employees</div>
           </div>
           <div className="bg-white rounded-lg shadow p-4 border border-gray-200">
-            <div className="text-2xl font-bold text-orange-600">
+            <div className="text-2xl font-bold text-orange-700">
               {branchStats.totalProducts || 0}
             </div>
-            <div className="text-sm text-gray-600">Products</div>
+            <div className="text-xs text-gray-600 font-semibold uppercase tracking-wide mt-2">Products</div>
           </div>
           <div className="bg-white rounded-lg shadow p-4 border border-gray-200">
-            <div className="text-2xl font-bold text-red-600">
+            <div className="text-2xl font-bold text-red-700">
               {branchStats.lowStockProducts || 0}
             </div>
-            <div className="text-sm text-gray-600">Low Stock</div>
+            <div className="text-xs text-gray-600 font-semibold uppercase tracking-wide mt-2">Low Stock</div>
           </div>
         </div>
       )}
 
       {/* Branch Filter */}
       <div className="bg-white rounded-lg shadow p-4 border border-gray-200">
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label className="block text-xs font-semibold text-gray-700 mb-3 uppercase tracking-wide">
           View Branch Statistics
         </label>
         <select
@@ -221,18 +222,18 @@ export function BranchManagement() {
       </div>
 
       {/* Branches List */}
-      <div className="bg-white rounded-lg shadow border border-gray-200">
+      <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-sm border border-white/60">
         {branches.length === 0 ? (
-          <div className="text-center py-12">
+          <div className="text-center py-16">
             <span className="text-6xl">🏢</span>
-            <h3 className="text-lg font-medium text-gray-900 mt-4">No branches found</h3>
-            <p className="text-gray-500 mt-2">Add your first branch to get started</p>
+            <h3 className="text-xl font-bold text-gray-900 mt-6">No branches found</h3>
+            <p className="text-gray-600 mt-2">Add your first branch to get started</p>
             <button
               onClick={() => {
                 resetForm();
                 setShowAddBranch(true);
               }}
-              className="mt-4 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+              className="mt-6 px-6 py-3 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white rounded-2xl font-semibold transition-all duration-300"
             >
               Add First Branch
             </button>
@@ -240,12 +241,12 @@ export function BranchManagement() {
         ) : (
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
+              <thead className="bg-gradient-to-r from-purple-50 to-blue-50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
                     Branch
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
                     Location
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -326,28 +327,27 @@ export function BranchManagement() {
           </div>
         )}
       </div>
-
       {/* Add/Edit Branch Modal */}
       {showAddBranch && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg w-full max-w-2xl max-h-screen overflow-y-auto">
+          <div className="bg-white/95 backdrop-blur-sm rounded-3xl w-full max-w-2xl max-h-screen overflow-y-auto border border-white/60">
             <div className="p-6">
               <div className="flex justify-between items-center mb-6">
-                <h3 className="text-lg font-semibold text-gray-900">
-                  {editingBranch ? "Edit Branch" : "Add New Branch"}
+                <h3 className="text-xl font-bold text-gray-900">
+                  {editingBranch ? "📝 Edit Branch" : "➕ Add New Branch"}
                 </h3>
                 <button
                   onClick={() => setShowAddBranch(false)}
-                  className="text-gray-400 hover:text-gray-600"
+                  className="text-gray-400 hover:text-gray-600 transition-colors"
                 >
                   ✕
                 </button>
               </div>
 
-              <form onSubmit={handleSubmit} className="space-y-4">
+              <form onSubmit={handleSubmit} className="space-y-5">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-xs font-semibold text-gray-700 mb-2 uppercase tracking-wide">
                       Branch Name *
                     </label>
                     <input
@@ -355,13 +355,13 @@ export function BranchManagement() {
                       required
                       value={newBranch.name}
                       onChange={(e) => setNewBranch({...newBranch, name: e.target.value})}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                      className="input-field"
                       placeholder="e.g., Main Showroom"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-xs font-semibold text-gray-700 mb-2 uppercase tracking-wide">
                       Branch Code *
                     </label>
                     <input
@@ -369,13 +369,13 @@ export function BranchManagement() {
                       required
                       value={newBranch.code}
                       onChange={(e) => setNewBranch({...newBranch, code: e.target.value.toUpperCase()})}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                      className="input-field"
                       placeholder="e.g., MAIN01"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-xs font-semibold text-gray-700 mb-2 uppercase tracking-wide">
                       City *
                     </label>
                     <input
@@ -383,39 +383,39 @@ export function BranchManagement() {
                       required
                       value={newBranch.city}
                       onChange={(e) => setNewBranch({...newBranch, city: e.target.value})}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                      className="input-field"
                       placeholder="e.g., Dhaka"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-xs font-semibold text-gray-700 mb-2 uppercase tracking-wide">
                       Phone
                     </label>
                     <input
                       type="tel"
                       value={newBranch.phone}
                       onChange={(e) => setNewBranch({...newBranch, phone: e.target.value})}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                      className="input-field"
                       placeholder="e.g., +880 1234 567890"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-xs font-semibold text-gray-700 mb-2 uppercase tracking-wide">
                       Email
                     </label>
                     <input
                       type="email"
                       value={newBranch.email}
                       onChange={(e) => setNewBranch({...newBranch, email: e.target.value})}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                      className="input-field"
                       placeholder="e.g., main@abayastore.com"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-xs font-semibold text-gray-700 mb-2 uppercase tracking-wide">
                       Manager
                     </label>
                     <select
@@ -474,6 +474,7 @@ export function BranchManagement() {
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 }
