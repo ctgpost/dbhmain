@@ -1094,6 +1094,7 @@ export function Inventory() {
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 }
