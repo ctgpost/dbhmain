@@ -8,11 +8,13 @@ export function DiscountManagement() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedDiscount, setSelectedDiscount] = useState<Id<"discounts"> | null>(null);
+  const [activeTab, setActiveTab] = useState<"active" | "all" | "stats">("all");
 
   const discounts = useQuery(api.discounts.list, {});
   const categories = useQuery(api.categories.list);
   const products = useQuery(api.products.list, {});
   const branches = useQuery(api.branches.list, {});
+  const discountStats = useQuery(api.discountUtils.getDiscountStats, {});
 
   const [formData, setFormData] = useState({
     name: "",
@@ -33,6 +35,7 @@ export function DiscountManagement() {
   const createDiscount = useMutation(api.discounts.create);
   const updateDiscount = useMutation(api.discounts.update);
   const removeDiscount = useMutation(api.discounts.remove);
+  const toggleDiscountStatus = useMutation(api.discountUtils.toggleDiscountStatus);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -84,6 +87,18 @@ export function DiscountManagement() {
     }
   };
 
+  const handleToggleStatus = async (discountId: Id<"discounts">, currentStatus: boolean) => {
+    try {
+      await toggleDiscountStatus({
+        discountId,
+        isActive: !currentStatus,
+      });
+      toast.success(`Discount ${!currentStatus ? "activated" : "deactivated"} successfully!`);
+    } catch (error: any) {
+      toast.error(error.message || "Failed to toggle discount status");
+    }
+  };
+
   const handleDelete = async (discountId: Id<"discounts">) => {
     if (confirm("Are you sure you want to delete this discount?")) {
       try {
@@ -116,81 +131,255 @@ export function DiscountManagement() {
     setSelectedDiscount(null);
   };
 
+  // Filter discounts based on active tab
+  const filteredDiscounts = discounts?.filter((discount) => {
+    const isActive = discount.isActive && 
+      discount.startDate <= Date.now() && 
+      discount.endDate >= Date.now();
+    
+    if (activeTab === "active") {
+      return isActive;
+    }
+    return true;
+  }) || [];
+      description: "",
+      type: "percentage",
+      value: 0,
+      scope: "all_products",
+      categoryIds: [],
+      productIds: [],
+      branchIds: [],
+      startDate: new Date().toISOString().split('T')[0],
+      endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      usageLimit: undefined,
+      minPurchaseAmount: undefined,
+      maxDiscountAmount: undefined,
+    });
+    setShowAddModal(false);
+    setShowEditModal(false);
+    setSelectedDiscount(null);
+  };
+
   return (
     <div className="space-y-6">
+      {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <h2 className="text-2xl font-bold text-gray-900">🎁 Discount Management</h2>
         <button
-          onClick={() => setShowAddModal(true)}
-          className="btn-primary"
+          onClick={() => {
+            resetForm();
+            setShowAddModal(true);
+          }}
+          className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 font-medium"
         >
           ➕ Create Discount
         </button>
       </div>
 
-      {/* Discounts List */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {discounts?.map((discount) => {
-          const isActive = discount.isActive && 
-            discount.startDate <= Date.now() && 
-            discount.endDate >= Date.now();
-          const isExpired = discount.endDate < Date.now();
-          
-          return (
-            <div key={discount._id} className="bg-white rounded-lg shadow p-6 space-y-4">
-              <div className="flex justify-between items-start">
-                <div>
-                  <h3 className="font-bold text-lg">{discount.name}</h3>
-                  <p className="text-sm text-gray-600">{discount.description}</p>
-                </div>
-                <span className={`badge ${isActive ? 'badge-success' : isExpired ? 'badge-danger' : 'badge-warning'}`}>
-                  {isActive ? 'Active' : isExpired ? 'Expired' : 'Inactive'}
-                </span>
-              </div>
+      {/* Statistics Cards */}
+      {discountStats && activeTab === "stats" && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+          <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
+            <div className="text-3xl font-bold text-blue-600">{discountStats.total}</div>
+            <div className="text-sm text-blue-800">Total Discounts</div>
+          </div>
+          <div className="bg-green-50 rounded-lg p-4 border border-green-200">
+            <div className="text-3xl font-bold text-green-600">{discountStats.active}</div>
+            <div className="text-sm text-green-800">Active Now</div>
+          </div>
+          <div className="bg-yellow-50 rounded-lg p-4 border border-yellow-200">
+            <div className="text-3xl font-bold text-yellow-600">{discountStats.upcoming}</div>
+            <div className="text-sm text-yellow-800">Upcoming</div>
+          </div>
+          <div className="bg-red-50 rounded-lg p-4 border border-red-200">
+            <div className="text-3xl font-bold text-red-600">{discountStats.expired}</div>
+            <div className="text-sm text-red-800">Expired</div>
+          </div>
+          <div className="bg-purple-50 rounded-lg p-4 border border-purple-200">
+            <div className="text-3xl font-bold text-purple-600">{discountStats.totalUsage}</div>
+            <div className="text-sm text-purple-800">Total Used</div>
+          </div>
+        </div>
+      )}
 
-              <div className="space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Type:</span>
-                  <span className="font-medium">
-                    {discount.type === "percentage" ? `${discount.value}%` : `৳${discount.value}`}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Scope:</span>
-                  <span className="font-medium capitalize">{discount.scope.replace('_', ' ')}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Usage:</span>
-                  <span className="font-medium">
-                    {discount.usageCount} {discount.usageLimit ? `/ ${discount.usageLimit}` : ''}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Valid Until:</span>
-                  <span className="font-medium">
-                    {new Date(discount.endDate).toLocaleDateString()}
-                  </span>
-                </div>
-              </div>
-
-              <div className="flex space-x-2 pt-2 border-t">
-                <button
-                  onClick={() => handleEdit(discount._id)}
-                  className="flex-1 text-sm text-blue-600 hover:text-blue-900"
-                >
-                  ✏️ Edit
-                </button>
-                <button
-                  onClick={() => handleDelete(discount._id)}
-                  className="flex-1 text-sm text-red-600 hover:text-red-900"
-                >
-                  🗑️ Delete
-                </button>
-              </div>
-            </div>
-          );
-        })}
+      {/* Tab Navigation */}
+      <div className="border-b border-gray-200">
+        <nav className="flex space-x-8">
+          <button
+            onClick={() => setActiveTab("all")}
+            className={`py-2 px-1 border-b-2 font-medium text-sm ${
+              activeTab === "all"
+                ? "border-purple-500 text-purple-600"
+                : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+            }`}
+          >
+            All Discounts ({discounts?.length || 0})
+          </button>
+          <button
+            onClick={() => setActiveTab("active")}
+            className={`py-2 px-1 border-b-2 font-medium text-sm ${
+              activeTab === "active"
+                ? "border-purple-500 text-purple-600"
+                : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+            }`}
+          >
+            Active Now ({filteredDiscounts.length})
+          </button>
+          <button
+            onClick={() => setActiveTab("stats")}
+            className={`py-2 px-1 border-b-2 font-medium text-sm ${
+              activeTab === "stats"
+                ? "border-purple-500 text-purple-600"
+                : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+            }`}
+          >
+            Statistics
+          </button>
+        </nav>
       </div>
+
+      {/* Discounts List */}
+      {activeTab !== "stats" && (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {filteredDiscounts.length > 0 ? (
+            filteredDiscounts.map((discount) => {
+              const isActive = discount.isActive && 
+                discount.startDate <= Date.now() && 
+                discount.endDate >= Date.now();
+              const isExpired = discount.endDate < Date.now();
+              const isUpcoming = discount.startDate > Date.now();
+              const percentageUsed = discount.usageLimit
+                ? Math.round((discount.usageCount / discount.usageLimit) * 100)
+                : 0;
+              
+              return (
+                <div key={discount._id} className="bg-white rounded-lg shadow p-6 space-y-4 border border-gray-200">
+                  {/* Header */}
+                  <div className="flex justify-between items-start">
+                    <div className="flex-1">
+                      <h3 className="font-bold text-lg text-gray-900">{discount.name}</h3>
+                      {discount.description && (
+                        <p className="text-sm text-gray-600 mt-1">{discount.description}</p>
+                      )}
+                    </div>
+                    <span className={`px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap ${
+                      isActive
+                        ? 'bg-green-100 text-green-800'
+                        : isExpired
+                        ? 'bg-red-100 text-red-800'
+                        : isUpcoming
+                        ? 'bg-blue-100 text-blue-800'
+                        : 'bg-gray-100 text-gray-800'
+                    }`}>
+                      {isActive ? '✓ Active' : isExpired ? '✕ Expired' : isUpcoming ? '⏱ Upcoming' : '⊘ Inactive'}
+                    </span>
+                  </div>
+
+                  {/* Discount Value */}
+                  <div className="bg-purple-50 rounded-lg p-3 border border-purple-200">
+                    <div className="text-2xl font-bold text-purple-600">
+                      {discount.type === "percentage" ? `${discount.value}%` : `৳${discount.value}`}
+                    </div>
+                    <div className="text-sm text-purple-800">
+                      {discount.scope === "all_products"
+                        ? "All Products"
+                        : discount.scope === "category"
+                        ? "Specific Categories"
+                        : "Specific Products"}
+                    </div>
+                  </div>
+
+                  {/* Details */}
+                  <div className="space-y-2 text-sm border-t pt-4">
+                    <div className="flex justify-between text-gray-700">
+                      <span>Valid:</span>
+                      <span className="font-medium">
+                        {new Date(discount.startDate).toLocaleDateString()} - {new Date(discount.endDate).toLocaleDateString()}
+                      </span>
+                    </div>
+                    
+                    {discount.usageLimit && (
+                      <div>
+                        <div className="flex justify-between text-gray-700 mb-1">
+                          <span>Usage:</span>
+                          <span className="font-medium">{discount.usageCount} / {discount.usageLimit}</span>
+                        </div>
+                        <div className="w-full bg-gray-200 rounded-full h-2">
+                          <div
+                            className={`h-2 rounded-full ${
+                              percentageUsed > 80
+                                ? 'bg-red-500'
+                                : percentageUsed > 50
+                                ? 'bg-yellow-500'
+                                : 'bg-green-500'
+                            }`}
+                            style={{ width: `${Math.min(percentageUsed, 100)}%` }}
+                          />
+                        </div>
+                      </div>
+                    )}
+
+                    {discount.minPurchaseAmount && (
+                      <div className="flex justify-between text-gray-700">
+                        <span>Min Purchase:</span>
+                        <span className="font-medium">৳{discount.minPurchaseAmount}</span>
+                      </div>
+                    )}
+
+                    {discount.maxDiscountAmount && (
+                      <div className="flex justify-between text-gray-700">
+                        <span>Max Discount:</span>
+                        <span className="font-medium">৳{discount.maxDiscountAmount}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Actions */}
+                  <div className="flex gap-2 pt-4 border-t">
+                    <button
+                      onClick={() => handleToggleStatus(discount._id, discount.isActive)}
+                      className={`flex-1 text-sm py-2 rounded font-medium transition ${
+                        discount.isActive
+                          ? 'bg-yellow-100 text-yellow-800 hover:bg-yellow-200'
+                          : 'bg-blue-100 text-blue-800 hover:bg-blue-200'
+                      }`}
+                    >
+                      {discount.isActive ? '⊘ Deactivate' : '✓ Activate'}
+                    </button>
+                    <button
+                      onClick={() => handleEdit(discount._id)}
+                      className="flex-1 text-sm py-2 rounded font-medium bg-blue-100 text-blue-800 hover:bg-blue-200 transition"
+                    >
+                      ✏️ Edit
+                    </button>
+                    <button
+                      onClick={() => handleDelete(discount._id)}
+                      className="flex-1 text-sm py-2 rounded font-medium bg-red-100 text-red-800 hover:bg-red-200 transition"
+                    >
+                      🗑️ Delete
+                    </button>
+                  </div>
+                </div>
+              );
+            })
+          ) : (
+            <div className="col-span-full text-center py-12 bg-gray-50 rounded-lg border border-gray-200">
+              <p className="text-gray-600 text-lg">
+                {activeTab === "active" ? "No active discounts" : "No discounts created yet"}
+              </p>
+              <button
+                onClick={() => {
+                  resetForm();
+                  setShowAddModal(true);
+                }}
+                className="mt-4 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 font-medium"
+              >
+                ➕ Create Your First Discount
+              </button>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Add/Edit Modal */}
       {(showAddModal || showEditModal) && (
@@ -342,6 +531,76 @@ export function DiscountManagement() {
                       placeholder="No maximum"
                     />
                   </div>
+
+                  {/* Category Selection */}
+                  {formData.scope === "category" && (
+                    <div className="sm:col-span-2">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Select Categories *
+                      </label>
+                      <div className="space-y-2 max-h-48 overflow-y-auto border border-gray-300 rounded-lg p-3 bg-gray-50">
+                        {categories?.map((category) => (
+                          <label key={category._id} className="flex items-center cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={formData.categoryIds.includes(category._id)}
+                              onChange={(e) => {
+                                if (e.target.checked) {
+                                  setFormData({
+                                    ...formData,
+                                    categoryIds: [...formData.categoryIds, category._id],
+                                  });
+                                } else {
+                                  setFormData({
+                                    ...formData,
+                                    categoryIds: formData.categoryIds.filter(id => id !== category._id),
+                                  });
+                                }
+                              }}
+                              className="rounded"
+                            />
+                            <span className="ml-2 text-sm text-gray-700">{category.name}</span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Product Selection */}
+                  {formData.scope === "specific_products" && (
+                    <div className="sm:col-span-2">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Select Products *
+                      </label>
+                      <div className="space-y-2 max-h-48 overflow-y-auto border border-gray-300 rounded-lg p-3 bg-gray-50">
+                        {products?.map((product) => (
+                          <label key={product._id} className="flex items-center cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={formData.productIds.includes(product._id)}
+                              onChange={(e) => {
+                                if (e.target.checked) {
+                                  setFormData({
+                                    ...formData,
+                                    productIds: [...formData.productIds, product._id],
+                                  });
+                                } else {
+                                  setFormData({
+                                    ...formData,
+                                    productIds: formData.productIds.filter(id => id !== product._id),
+                                  });
+                                }
+                              }}
+                              className="rounded"
+                            />
+                            <span className="ml-2 text-sm text-gray-700">
+                              {product.name} {product.brand && `(${product.brand})`}
+                            </span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 <div className="flex justify-end space-x-2 pt-4">
