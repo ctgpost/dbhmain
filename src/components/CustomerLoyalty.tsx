@@ -1,19 +1,22 @@
 import React, { useState } from "react";
-import { Award, Users, Zap, TrendingUp, Crown, Gift, Share2, CheckCircle2, Copy, AlertCircle, UserCheck } from "lucide-react";
+import { Award, Users, Zap, TrendingUp, Crown, Gift, Share2, CheckCircle2, Copy, AlertCircle, UserCheck, Loader } from "lucide-react";
 import { toast } from "sonner";
+import { useQuery, useMutation } from "convex/react";
+import { api } from "../../convex/_generated/api";
 
 interface LoyaltyCustomer {
-  _id: string;
-  name: string;
-  email: string;
-  phone: string;
-  currentTier: "Bronze" | "Silver" | "Gold" | "Platinum";
+  _id: any; // Id<"customerLoyalty">
+  customerId: any; // Id<"customers">
+  customerName: string;
+  email?: string;
+  phone?: string;
+  currentTier: string; // "Bronze" | "Silver" | "Gold" | "Platinum"
   totalPoints: number;
   availablePoints: number;
   totalSpent: number;
   totalOrders: number;
   referralCode: string;
-  membershipDate: string;
+  membershipDate: number;
 }
 
 interface LoyaltyStats {
@@ -24,10 +27,12 @@ interface LoyaltyStats {
   tierDistribution: Record<string, number>;
 }
 
-const DEMO_CUSTOMERS: LoyaltyCustomer[] = [
+// Demo data as fallback for UI during loading and for development
+const FALLBACK_CUSTOMERS: LoyaltyCustomer[] = [
   {
-    _id: "cust1",
-    name: "Ahmed Hassan",
+    _id: "fallback1",
+    customerId: "cust1" as any,
+    customerName: "Ahmed Hassan",
     email: "ahmed@example.com",
     phone: "+971501234567",
     currentTier: "Gold",
@@ -36,11 +41,12 @@ const DEMO_CUSTOMERS: LoyaltyCustomer[] = [
     totalSpent: 12500,
     totalOrders: 45,
     referralCode: "AHMED2025",
-    membershipDate: "2023-06-15",
+    membershipDate: new Date("2023-06-15").getTime(),
   },
   {
-    _id: "cust2",
-    name: "Fatima Al-Mansouri",
+    _id: "fallback2",
+    customerId: "cust2" as any,
+    customerName: "Fatima Al-Mansouri",
     email: "fatima@example.com",
     phone: "+971509876543",
     currentTier: "Platinum",
@@ -49,11 +55,12 @@ const DEMO_CUSTOMERS: LoyaltyCustomer[] = [
     totalSpent: 28900,
     totalOrders: 89,
     referralCode: "FATIMA2025",
-    membershipDate: "2022-01-10",
+    membershipDate: new Date("2022-01-10").getTime(),
   },
   {
-    _id: "cust3",
-    name: "Mohammed Ali",
+    _id: "fallback3",
+    customerId: "cust3" as any,
+    customerName: "Mohammed Ali",
     email: "mohammed@example.com",
     phone: "+971555555555",
     currentTier: "Silver",
@@ -62,11 +69,11 @@ const DEMO_CUSTOMERS: LoyaltyCustomer[] = [
     totalSpent: 4200,
     totalOrders: 18,
     referralCode: "MOHAMM2025",
-    membershipDate: "2023-11-20",
+    membershipDate: new Date("2023-11-20").getTime(),
   },
 ];
 
-const DEMO_STATS: LoyaltyStats = {
+const FALLBACK_STATS: LoyaltyStats = {
   totalMembers: 156,
   activeCoupons: 12,
   totalPointsIssued: 45000,
@@ -81,13 +88,34 @@ const DEMO_STATS: LoyaltyStats = {
 
 export default function CustomerLoyalty() {
   const [activeTab, setActiveTab] = useState<"overview" | "stats" | "tiers" | "referral">("overview");
-  const [selectedCustomer, setSelectedCustomer] = useState<LoyaltyCustomer | null>(DEMO_CUSTOMERS[0]);
+  const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(null);
+
+  // Real data queries from Convex
+  const allCustomers = useQuery(api.loyalty?.getTopCustomers, {}) ?? [];
+  const loyaltyStats = useQuery(api.loyalty?.getLoyaltyStats, {}) ?? null;
+  const createReferral = useMutation(api.loyalty?.createReferral);
+
+  // Use real data if available, fallback to demo data
+  const customers: LoyaltyCustomer[] = (allCustomers && allCustomers.length > 0 ? allCustomers : FALLBACK_CUSTOMERS) as LoyaltyCustomer[];
+  const stats = loyaltyStats || FALLBACK_STATS;
+  
+  // Set first customer as default on first load
+  React.useEffect(() => {
+    if (!selectedCustomerId && customers.length > 0) {
+      setSelectedCustomerId(customers[0]._id);
+    }
+  }, [customers, selectedCustomerId]);
+
+  const selectedCustomer = customers.find((c) => c._id === selectedCustomerId) || customers[0];
+  const isLoadingData = !allCustomers || !loyaltyStats;
+
   const [showReferralModal, setShowReferralModal] = useState(false);
   const [referralData, setReferralData] = useState({
     referredName: "",
     referredPhone: "",
     bonusPoints: 100,
   });
+  const [isCreatingReferral, setIsCreatingReferral] = useState(false);
 
   const getTierColor = (tier: string) => {
     const colors: Record<string, string> = {
@@ -114,14 +142,35 @@ export default function CustomerLoyalty() {
     toast.success("Copied to clipboard!");
   };
 
-  const handleCreateReferral = () => {
+  const handleCreateReferral = async () => {
     if (!referralData.referredName) {
       toast.error("Please fill in customer name");
       return;
     }
-    toast.success(`Referral created for ${referralData.referredName}!`);
-    setReferralData({ referredName: "", referredPhone: "", bonusPoints: 100 });
-    setShowReferralModal(false);
+    if (!selectedCustomer?._id) {
+      toast.error("Please select a customer");
+      return;
+    }
+
+    setIsCreatingReferral(true);
+    try {
+      await createReferral({
+        referrerId: selectedCustomer.customerId as any,
+        referrerName: selectedCustomer.customerName,
+        referrerPhone: selectedCustomer.phone,
+        referredName: referralData.referredName,
+        referredPhone: referralData.referredPhone,
+        bonusPoints: referralData.bonusPoints,
+      });
+      toast.success(`Referral created for ${referralData.referredName}!`);
+      setReferralData({ referredName: "", referredPhone: "", bonusPoints: 100 });
+      setShowReferralModal(false);
+    } catch (error) {
+      toast.error("Failed to create referral. Please try again.");
+      console.error("Referral creation error:", error);
+    } finally {
+      setIsCreatingReferral(false);
+    }
   };
 
   return (
@@ -132,6 +181,12 @@ export default function CustomerLoyalty() {
           <Award className="w-6 sm:w-8 h-6 sm:h-8 text-blue-600 flex-shrink-0" />
           <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Customer Loyalty & Rewards</h1>
         </div>
+        {isLoadingData && (
+          <div className="flex items-center gap-2 text-blue-600">
+            <Loader className="w-4 h-4 animate-spin" />
+            <span className="text-xs sm:text-sm">Loading real data...</span>
+          </div>
+        )}
       </div>
 
       {/* Statistics Cards - Responsive Grid */}
@@ -140,7 +195,9 @@ export default function CustomerLoyalty() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-xs sm:text-sm text-gray-600 font-medium">Total Members</p>
-              <p className="text-2xl sm:text-3xl font-bold text-gray-900 mt-1">{DEMO_STATS.totalMembers}</p>
+              <p className="text-2xl sm:text-3xl font-bold text-gray-900 mt-1">
+                {isLoadingData ? <Loader className="w-6 h-6 animate-spin text-gray-400" /> : stats.totalMembers}
+              </p>
             </div>
             <Users className="w-8 sm:w-10 h-8 sm:h-10 text-blue-600 opacity-20 flex-shrink-0" />
           </div>
@@ -150,7 +207,9 @@ export default function CustomerLoyalty() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-xs sm:text-sm text-gray-600 font-medium">Active Coupons</p>
-              <p className="text-2xl sm:text-3xl font-bold text-gray-900 mt-1">{DEMO_STATS.activeCoupons}</p>
+              <p className="text-2xl sm:text-3xl font-bold text-gray-900 mt-1">
+                {isLoadingData ? <Loader className="w-6 h-6 animate-spin text-gray-400" /> : stats.activeCoupons}
+              </p>
             </div>
             <Gift className="w-8 sm:w-10 h-8 sm:h-10 text-orange-600 opacity-20 flex-shrink-0" />
           </div>
@@ -160,7 +219,9 @@ export default function CustomerLoyalty() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-xs sm:text-sm text-gray-600 font-medium">Points Issued</p>
-              <p className="text-2xl sm:text-3xl font-bold text-gray-900 mt-1">{(DEMO_STATS.totalPointsIssued / 1000).toFixed(1)}K</p>
+              <p className="text-2xl sm:text-3xl font-bold text-gray-900 mt-1">
+                {isLoadingData ? <Loader className="w-6 h-6 animate-spin text-gray-400" /> : (stats.totalPointsIssued / 1000).toFixed(1) + "K"}
+              </p>
             </div>
             <Zap className="w-8 sm:w-10 h-8 sm:h-10 text-yellow-600 opacity-20 flex-shrink-0" />
           </div>
@@ -170,7 +231,9 @@ export default function CustomerLoyalty() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-xs sm:text-sm text-gray-600 font-medium">Points Redeemed</p>
-              <p className="text-2xl sm:text-3xl font-bold text-gray-900 mt-1">{(DEMO_STATS.totalPointsRedeemed / 1000).toFixed(1)}K</p>
+              <p className="text-2xl sm:text-3xl font-bold text-gray-900 mt-1">
+                {isLoadingData ? <Loader className="w-6 h-6 animate-spin text-gray-400" /> : (stats.totalPointsRedeemed / 1000).toFixed(1) + "K"}
+              </p>
             </div>
             <TrendingUp className="w-8 sm:w-10 h-8 sm:h-10 text-green-600 opacity-20 flex-shrink-0" />
           </div>
@@ -184,13 +247,13 @@ export default function CustomerLoyalty() {
           Member Tier Distribution
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-          {Object.entries(DEMO_STATS.tierDistribution).map(([tier, count]) => (
+          {Object.entries(stats.tierDistribution).map(([tier, count]) => (
             <div
               key={tier}
               className={`bg-gradient-to-br ${getTierColor(tier)} rounded-lg p-4 sm:p-6 text-white`}
             >
               <p className="text-xs sm:text-sm opacity-90">{tier} Members</p>
-              <p className="text-3xl sm:text-4xl font-bold mt-2">{count}</p>
+              <p className="text-3xl sm:text-4xl font-bold mt-2">{isLoadingData ? "..." : String(count)}</p>
             </div>
           ))}
         </div>
@@ -202,20 +265,25 @@ export default function CustomerLoyalty() {
           <UserCheck className="w-5 h-5 text-blue-600" />
           Select Customer
         </h2>
-        <select
-          value={selectedCustomer?._id || ""}
-          onChange={(e) => {
-            const customer = DEMO_CUSTOMERS.find((c) => c._id === e.target.value);
-            setSelectedCustomer(customer || null);
-          }}
-          className="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-        >
-          {DEMO_CUSTOMERS.map((customer) => (
-            <option key={customer._id} value={customer._id}>
-              {customer.name} ({customer.currentTier} - {customer.totalPoints} pts)
-            </option>
-          ))}
-        </select>
+        {isLoadingData ? (
+          <div className="flex items-center gap-2 text-gray-600">
+            <Loader className="w-4 h-4 animate-spin" />
+            <span className="text-sm">Loading customers...</span>
+          </div>
+        ) : (
+          <select
+            value={selectedCustomerId || ""}
+            onChange={(e) => setSelectedCustomerId(e.target.value || null)}
+            className="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="">Select a customer...</option>
+            {customers.map((customer) => (
+              <option key={customer._id} value={customer._id}>
+                {customer.customerName} ({customer.currentTier} - {customer.totalPoints} pts)
+              </option>
+            ))}
+          </select>
+        )}
       </div>
 
       {/* Tabs */}
@@ -254,7 +322,7 @@ export default function CustomerLoyalty() {
                   <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between mb-4 sm:mb-6 gap-3">
                     <div>
                       <p className="text-white/80 text-xs sm:text-sm">Loyalty Member</p>
-                      <h3 className="text-xl sm:text-2xl font-bold mt-1">{selectedCustomer.name}</h3>
+                      <h3 className="text-xl sm:text-2xl font-bold mt-1">{selectedCustomer.customerName}</h3>
                     </div>
                     <Crown className="w-6 sm:w-8 h-6 sm:h-8 opacity-30 flex-shrink-0" />
                   </div>
@@ -487,15 +555,24 @@ export default function CustomerLoyalty() {
             <div className="flex gap-3">
               <button
                 onClick={() => setShowReferralModal(false)}
-                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-colors text-sm"
+                disabled={isCreatingReferral}
+                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 disabled:opacity-50 transition-colors text-sm"
               >
                 Cancel
               </button>
               <button
                 onClick={handleCreateReferral}
-                className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors text-sm"
+                disabled={isCreatingReferral}
+                className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-medium rounded-lg transition-colors text-sm flex items-center justify-center gap-2"
               >
-                Create
+                {isCreatingReferral ? (
+                  <>
+                    <Loader className="w-4 h-4 animate-spin" />
+                    Creating...
+                  </>
+                ) : (
+                  "Create"
+                )}
               </button>
             </div>
           </div>
