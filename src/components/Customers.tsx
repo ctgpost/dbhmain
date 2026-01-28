@@ -377,88 +377,87 @@ export function Customers() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50">
-      <div className="space-y-6 p-4 sm:p-6 max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
-          <div>
-            <h1 className="text-3xl sm:text-4xl font-bold text-gray-900">Customer Management</h1>
-            <p className="text-sm text-gray-600 mt-1">
-              Manage your customer relationships • {customers.length} customers
-            </p>
-          </div>
-          <button
-            onClick={() => {
-              if (isSubmitting) {
-                toast.warning("Please wait for the current operation to complete");
-                return;
-              }
-              resetForm();
+    <div className="space-y-4 sm:space-y-6">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center space-y-2 sm:space-y-0">
+        <div>
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-900">👥 Customer Management</h2>
+          <p className="text-sm text-gray-600 mt-1">
+            Manage your customer relationships • {customers.length} customers
+          </p>
+        </div>
+        <button
+          onClick={() => {
+            if (isSubmitting) {
+              toast.warning("Please wait for the current operation to complete");
+              return;
+            }
+            resetForm();
             setShowAddCustomer(true);
             toast.info("📝 Opening new customer form");
           }}
           disabled={isSubmitting}
-          className="px-6 py-3 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white rounded-2xl font-semibold transition-all duration-300 flex items-center justify-center gap-2 sm:w-auto w-full disabled:opacity-50"
+          className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          + New Customer
+          + Add Customer
         </button>
-        </div>
+      </div>
 
-        {/* Search and Filters - iOS Style */}
-        <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-sm border border-white/60 p-6">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div>
-              <label className="block text-xs sm:text-sm font-semibold text-gray-700 uppercase tracking-wide mb-2">Search</label>
-              <input
-                type="text"
-                placeholder="Search customers..."
-                value={searchTerm}
-                onChange={(e) => {
-                  setSearchTerm(e.target.value);
-                  if (e.target.value) {
-                    toast.info(`🔍 Searching for: ${e.target.value}`);
-                  }
+      {/* Search and Filters */}
+      <div className="bg-white rounded-lg shadow border border-gray-200 p-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Search</label>
+            <input
+              type="text"
+              placeholder="Search customers..."
+              value={searchTerm}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                if (e.target.value) {
+                  toast.info(`🔍 Searching for: ${e.target.value}`);
+                }
               }}
-className="w-full px-4 py-3 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-purple-600 bg-gray-50 font-medium transition-all text-sm"
-              />
-            </div>
-            <div>
-              <label className="block text-xs sm:text-sm font-semibold text-gray-700 uppercase tracking-wide mb-2">Filter</label>
-              <select
-                value={filterBy}
-                onChange={(e) => {
-                  setFilterBy(e.target.value);
-                  const filterNames = {
-                    'all': 'All Customers',
-                    'active': 'Active Customers',
-                    'inactive': 'Inactive Customers',
-                    'recent': 'Recent Customers'
-                  };
-                  toast.info(`🔽 Filter: ${filterNames[e.target.value as keyof typeof filterNames]}`);
-                }}
-                className="w-full px-4 py-3 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-purple-600 bg-gray-50 font-medium transition-all text-sm"
-              >
-                <option value="all">All Customers</option>
-                <option value="active">Active</option>
-                <option value="inactive">Inactive</option>
-                <option value="recent">Recent Purchases</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-xs sm:text-sm font-semibold text-gray-700 uppercase tracking-wide mb-2">Sort By</label>
-              <select
-                value={sortBy}
-                onChange={(e) => {
-                  setSortBy(e.target.value);
-                  const sortNames = {
-                    'name': 'Customer Name',
-                    'purchases': 'Total Purchases',
-                    'recent': 'Last Purchase',
-                    'created': 'Date Added'
-                  };
-                  toast.info(`📊 Sorted by: ${sortNames[e.target.value as keyof typeof sortNames]}`);
-                }}
-                className="w-full px-4 py-3 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-purple-600 bg-gray-50 font-medium transition-all text-sm"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Filter</label>
+            <select
+              value={filterBy}
+              onChange={(e) => {
+                setFilterBy(e.target.value);
+                const filterNames = {
+                  'all': 'All Customers',
+                  'active': 'Active Customers',
+                  'inactive': 'Inactive Customers',
+                  'recent': 'Recent Customers'
+                };
+                toast.info(`🔽 Filter: ${filterNames[e.target.value as keyof typeof filterNames]}`);
+              }}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 text-sm"
+            >
+              <option value="all">All Customers</option>
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
+              <option value="recent">Recent Purchases</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Sort By</label>
+            <select
+              value={sortBy}
+              onChange={(e) => {
+                setSortBy(e.target.value);
+                const sortNames = {
+                  'name': 'Customer Name',
+                  'purchases': 'Total Purchases',
+                  'recent': 'Last Purchase',
+                  'created': 'Date Added'
+                };
+                toast.info(`📊 Sorted by: ${sortNames[e.target.value as keyof typeof sortNames]}`);
+              }}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 text-sm"
             >
               <option value="name">Name</option>
               <option value="purchases">Total Purchases</option>
@@ -469,46 +468,34 @@ className="w-full px-4 py-3 border border-gray-200 rounded-2xl focus:outline-non
         </div>
       </div>
 
-      {/* Stats - iOS Glass Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-        <div className="group bg-white/80 backdrop-blur-sm rounded-3xl p-5 sm:p-6 shadow-sm hover:shadow-md border border-white/60 transition-all duration-300">
-          <p className="text-xs sm:text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">Total Customers</p>
-          <div className="flex items-end justify-between">
-            <p className="text-2xl sm:text-3xl font-bold text-gray-900">{customers.length}</p>
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-blue-100 to-blue-50 flex items-center justify-center text-lg group-hover:scale-110 transition-transform duration-300">👥</div>
-          </div>
+      {/* Stats */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        <div className="bg-white rounded-lg shadow border border-gray-200 p-3 sm:p-4 hover:shadow-md transition-shadow">
+          <div className="text-lg sm:text-2xl font-bold text-gray-900">{customers.length}</div>
+          <div className="text-xs sm:text-sm text-gray-600">Total Customers</div>
         </div>
-        <div className="group bg-white/80 backdrop-blur-sm rounded-3xl p-5 sm:p-6 shadow-sm hover:shadow-md border border-white/60 transition-all duration-300">
-          <p className="text-xs sm:text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">Active</p>
-          <div className="flex items-end justify-between">
-            <p className="text-2xl sm:text-3xl font-bold text-green-600">
-              {customers.filter(c => c.isActive).length}
-            </p>
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-green-100 to-green-50 flex items-center justify-center text-lg group-hover:scale-110 transition-transform duration-300">✅</div>
+        <div className="bg-white rounded-lg shadow border border-gray-200 p-3 sm:p-4 hover:shadow-md transition-shadow">
+          <div className="text-lg sm:text-2xl font-bold text-green-600">
+            {customers.filter(c => c.isActive).length}
           </div>
+          <div className="text-xs sm:text-sm text-gray-600">Active</div>
         </div>
-        <div className="group bg-white/80 backdrop-blur-sm rounded-3xl p-5 sm:p-6 shadow-sm hover:shadow-md border border-white/60 transition-all duration-300">
-          <p className="text-xs sm:text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">Recent Buyers</p>
-          <div className="flex items-end justify-between">
-            <p className="text-2xl sm:text-3xl font-bold text-blue-600">
-              {customers.filter(c => c.lastPurchaseDate && Date.now() - c.lastPurchaseDate < 30 * 24 * 60 * 60 * 1000).length}
-            </p>
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-blue-100 to-blue-50 flex items-center justify-center text-lg group-hover:scale-110 transition-transform duration-300">🔥</div>
+        <div className="bg-white rounded-lg shadow border border-gray-200 p-3 sm:p-4 hover:shadow-md transition-shadow">
+          <div className="text-lg sm:text-2xl font-bold text-blue-600">
+            {customers.filter(c => c.lastPurchaseDate && Date.now() - c.lastPurchaseDate < 30 * 24 * 60 * 60 * 1000).length}
           </div>
+          <div className="text-xs sm:text-sm text-gray-600">Recent Buyers</div>
         </div>
-        <div className="group bg-white/80 backdrop-blur-sm rounded-3xl p-5 sm:p-6 shadow-sm hover:shadow-md border border-white/60 transition-all duration-300">
-          <p className="text-xs sm:text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">Avg Purchases</p>
-          <div className="flex items-end justify-between">
-            <p className="text-2xl sm:text-3xl font-bold text-purple-600">
-              {Math.round(customers.reduce((sum, c) => sum + c.totalPurchases, 0) / customers.length) || 0}
-            </p>
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-purple-100 to-purple-50 flex items-center justify-center text-lg group-hover:scale-110 transition-transform duration-300">📊</div>
+        <div className="bg-white rounded-lg shadow border border-gray-200 p-3 sm:p-4 hover:shadow-md transition-shadow">
+          <div className="text-lg sm:text-2xl font-bold text-purple-600">
+            {Math.round(customers.reduce((sum, c) => sum + c.totalPurchases, 0) / customers.length) || 0}
           </div>
+          <div className="text-xs sm:text-sm text-gray-600">Avg Purchases</div>
         </div>
       </div>
 
       {/* Customers List */}
-      <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-sm border border-white/60 overflow-hidden">
+      <div className="bg-white rounded-lg shadow border border-gray-200">
         {filteredCustomers.length === 0 ? (
           <div className="text-center py-12">
             <span className="text-4xl sm:text-6xl">👥</span>
@@ -938,7 +925,6 @@ className="w-full px-4 py-3 border border-gray-200 rounded-2xl focus:outline-non
           </div>
         </div>
       )}
-      </div>
     </div>
   );
 }
