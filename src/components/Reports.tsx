@@ -138,19 +138,24 @@ export function Reports() {
   };
 
   return (
-    <div className="space-y-4 sm:space-y-6">
-      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center space-y-2 sm:space-y-0">
-        <h2 className="text-xl sm:text-2xl font-bold text-gray-900">📊 Reports & Analytics</h2>
-        <button
-          onClick={exportToCSV}
-          className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium"
-        >
-          📥 Export CSV
-        </button>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50">
+      <div className="space-y-6 p-4 sm:p-6 max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+          <div>
+            <h1 className="text-3xl sm:text-4xl font-bold text-gray-900">Reports & Analytics</h1>
+            <p className="text-sm text-gray-600 mt-1">Track sales, inventory, and performance metrics</p>
+          </div>
+          <button
+            onClick={exportToCSV}
+            className="px-6 py-3 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white rounded-2xl font-semibold transition-all duration-300 flex items-center justify-center gap-2 sm:w-auto w-full"
+          >
+            📥 Export CSV
+          </button>
+        </div>
 
-      {/* Date Range Filter */}
-      <div className="bg-white rounded-lg shadow p-4 sm:p-6 border border-gray-200">
+        {/* Date Range Filter - iOS Style */}
+        <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-sm border border-white/60 p-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">📅 Date Range</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
@@ -176,73 +181,72 @@ export function Reports() {
 
       {/* Key Metrics */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white rounded-lg shadow p-4 sm:p-6 border border-gray-200">
+        <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-sm border border-white/60 p-5 sm:p-6 hover:shadow-md transition-all duration-300">
           <div className="flex items-center">
             <div className="flex-shrink-0">
-              <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-                <span className="text-green-600 text-sm">💰</span>
+              <div className="w-10 h-10 bg-gradient-to-br from-green-100 to-green-50 rounded-2xl flex items-center justify-center">
+                <span className="text-xl">💰</span>
               </div>
             </div>
             <div className="ml-3">
-              <p className="text-sm font-medium text-gray-500">Total Revenue</p>
-              <p className="text-lg sm:text-2xl font-semibold text-gray-900">৳{totalRevenue.toLocaleString('en-BD')}</p>
+              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Total Revenue</p>
+              <p className="text-lg sm:text-2xl font-bold text-gray-900 mt-1">৳{totalRevenue.toLocaleString('en-BD')}</p>
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow p-4 sm:p-6 border border-gray-200">
+        <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-sm border border-white/60 p-5 sm:p-6 hover:shadow-md transition-all duration-300">
           <div className="flex items-center">
             <div className="flex-shrink-0">
-              <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                <span className="text-blue-600 text-sm">🛒</span>
+              <div className="w-10 h-10 bg-gradient-to-br from-blue-100 to-blue-50 rounded-2xl flex items-center justify-center">
+                <span className="text-xl">🛒</span>
               </div>
             </div>
             <div className="ml-3">
-              <p className="text-sm font-medium text-gray-500">Total Transactions</p>
-              <p className="text-lg sm:text-2xl font-semibold text-gray-900">{totalTransactions}</p>
+              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Total Transactions</p>
+              <p className="text-lg sm:text-2xl font-bold text-gray-900 mt-1">{totalTransactions}</p>
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow p-4 sm:p-6 border border-gray-200">
+        <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-sm border border-white/60 p-5 sm:p-6 hover:shadow-md transition-all duration-300">
           <div className="flex items-center">
             <div className="flex-shrink-0">
-              <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
-                <span className="text-purple-600 text-sm">📦</span>
+              <div className="w-10 h-10 bg-gradient-to-br from-purple-100 to-purple-50 rounded-2xl flex items-center justify-center">
+                <span className="text-xl">📦</span>
               </div>
             </div>
             <div className="ml-3">
-              <p className="text-sm font-medium text-gray-500">Items Sold</p>
-              <p className="text-lg sm:text-2xl font-semibold text-gray-900">{totalItemsSold}</p>
+              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Items Sold</p>
+              <p className="text-lg sm:text-2xl font-bold text-gray-900 mt-1">{totalItemsSold}</p>
             </div>
           </div>
         </div>
-
-        <div className="bg-white rounded-lg shadow p-4 sm:p-6 border border-gray-200">
+        <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-sm border border-white/60 p-5 sm:p-6 hover:shadow-md transition-all duration-300">
           <div className="flex items-center">
             <div className="flex-shrink-0">
-              <div className="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center">
-                <span className="text-orange-600 text-sm">📈</span>
+              <div className="w-10 h-10 bg-gradient-to-br from-orange-100 to-orange-50 rounded-2xl flex items-center justify-center">
+                <span className="text-xl">📈</span>
               </div>
             </div>
             <div className="ml-3">
-              <p className="text-sm font-medium text-gray-500">Avg. Order Value</p>
-              <p className="text-lg sm:text-2xl font-semibold text-gray-900">৳{Math.round(averageOrderValue).toLocaleString('en-BD')}</p>
+              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Avg. Order Value</p>
+              <p className="text-lg sm:text-2xl font-bold text-gray-900 mt-1">৳{Math.round(averageOrderValue).toLocaleString('en-BD')}</p>
             </div>
           </div>
         </div>
       </div>
 
       {/* Inventory Overview */}
-      <div className="bg-white rounded-lg shadow p-4 sm:p-6 border border-gray-200">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">📦 Inventory Overview</h3>
+      <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-sm border border-white/60 p-6">
+        <h3 className="text-xl font-bold text-gray-900 mb-6">📦 Inventory Overview</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-          <div className="text-center p-4 bg-blue-50 rounded-lg">
-            <p className="text-2xl font-bold text-blue-600">{totalProducts}</p>
-            <p className="text-sm text-blue-800">Total Abaya Entry Bundles</p>
+          <div className="text-center p-5 bg-gradient-to-br from-blue-50 to-blue-100/50 rounded-2xl border border-blue-100/50">
+            <p className="text-2xl font-bold text-blue-700">{totalProducts}</p>
+            <p className="text-xs text-blue-700 font-semibold mt-2">Total Abaya Entry Bundles</p>
           </div>
-          <div className="text-center p-4 bg-green-50 rounded-lg">
-            <p className="text-2xl font-bold text-green-600">{totalAbayas}</p>
+          <div className="text-center p-5 bg-gradient-to-br from-green-50 to-green-100/50 rounded-2xl border border-green-100/50">
+            <p className="text-2xl font-bold text-green-700">{totalAbayas}</p>
             <p className="text-sm text-green-800">Total Abayas In Stock</p>
           </div>
           <div className="text-center p-4 bg-yellow-50 rounded-lg">
