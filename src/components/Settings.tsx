@@ -573,28 +573,121 @@ export function Settings() {
           {activeTab === "system" && (
             <div className="space-y-4 sm:space-y-6">
               <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-sm border border-white/60 p-4 sm:p-6">
-                <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-6">🖥️ সিস্টেম সেটিংস</h3>
+                <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-6">🖥️ সিস্টেম তথ্য</h3>
                 
-                <div className="space-y-4">
-                  <button
-                    onClick={clearCache}
-                    className="w-full px-4 py-2 sm:py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium text-sm transition-colors"
-                  >
-                    🧹 ক্যাশ পরিষ্কার করুন
-                  </button>
-                  <button
-                    onClick={optimizeDatabase}
-                    className="w-full px-4 py-2 sm:py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium text-sm transition-colors"
-                  >
-                    ⚡ ডেটাবেস অপ্টিমাইজ করুন
-                  </button>
-                  <button
-                    onClick={resetApplication}
-                    disabled={isResetting}
-                    className="w-full px-4 py-2 sm:py-3 bg-red-600 hover:bg-red-700 disabled:bg-red-400 text-white rounded-lg font-medium text-sm transition-colors"
-                  >
-                    {isResetting ? "রিসেট করছে..." : "🔴 অ্যাপ্লিকেশন রিসেট করুন"}
-                  </button>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                  <div>
+                    <h4 className="font-medium text-gray-900 mb-3 text-sm">অ্যাপ্লিকেশন তথ্য</h4>
+                    <div className="space-y-2 text-xs sm:text-sm">
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">সংস্করণ:</span>
+                        <span className="font-medium">1.0.0</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">বিল্ড:</span>
+                        <span className="font-medium">2024.01.15</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">পরিবেশ:</span>
+                        <span className="font-medium">উৎপাদন</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <h4 className="font-medium text-gray-900 mb-3 text-sm">ডেটাবেস তথ্য</h4>
+                    <div className="space-y-2 text-xs sm:text-sm">
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">স্থিতি:</span>
+                        <span className="font-medium text-green-600">সংযুক্ত</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">শেষ ব্যাকআপ:</span>
+                        <span className="font-medium">আজ, 3:00 AM</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">স্টোরেজ ব্যবহৃত:</span>
+                        <span className="font-medium">2.4 MB</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-sm border border-white/60 p-4 sm:p-6">
+                <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-6">🛠️ সিস্টেম রক্ষণাবেক্ষণ</h3>
+                
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+                  {/* Clear Cache Card */}
+                  <div className="border border-gray-200 rounded-lg p-3 sm:p-4 bg-gray-50 hover:shadow-md transition-shadow">
+                    <div className="mb-4">
+                      <h4 className="font-semibold text-gray-900 text-sm">🧹 ক্যাশ পরিষ্কার করুন</h4>
+                      <p className="text-xs text-gray-600 mt-2">পারফরম্যান্স উন্নত করতে ক্যাশ সাফ করুন</p>
+                    </div>
+                    <button
+                      onClick={clearCache}
+                      className="w-full px-3 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg font-medium text-xs sm:text-sm transition-colors"
+                    >
+                      পরিষ্কার করুন
+                    </button>
+                  </div>
+
+                  {/* Optimize Database Card */}
+                  <div className="border border-blue-200 rounded-lg p-3 sm:p-4 bg-blue-50 hover:shadow-md transition-shadow">
+                    <div className="mb-4">
+                      <h4 className="font-semibold text-blue-900 text-sm">⚙️ ডাটাবেস অপ্টিমাইজ করুন</h4>
+                      <p className="text-xs text-blue-700 mt-2">ডেটাবেস কর্মক্ষমতা উন্নত করুন</p>
+                    </div>
+                    <button
+                      onClick={optimizeDatabase}
+                      className="w-full px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium text-xs sm:text-sm transition-colors"
+                    >
+                      অপ্টিমাইজ করুন
+                    </button>
+                  </div>
+
+                  {/* Reset Application Card */}
+                  <div className="border border-red-200 rounded-lg p-3 sm:p-4 bg-red-50 hover:shadow-md transition-shadow">
+                    <div className="mb-4">
+                      <h4 className="font-semibold text-red-900 text-sm">🔄 রিসেট করুন</h4>
+                      <p className="text-xs text-red-700 mt-2">⚠️ সমস্ত ডেটা স্থায়ীভাবে মুছুন</p>
+                    </div>
+                    <button
+                      onClick={resetApplication}
+                      disabled={isResetting}
+                      className="w-full px-3 py-2 bg-red-600 hover:bg-red-700 disabled:bg-red-400 text-white rounded-lg font-medium text-xs sm:text-sm transition-colors"
+                    >
+                      {isResetting ? "রিসেট করছে..." : "রিসেট করুন"}
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Performance Metrics */}
+              <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-sm border border-white/60 p-4 sm:p-6">
+                <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-6">📊 পারফরম্যান্স মেট্রিক্স</h3>
+                
+                <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
+                  <div className="p-3 sm:p-4 bg-blue-50 rounded-lg border border-blue-200 hover:shadow-md transition-shadow">
+                    <div className="text-lg sm:text-2xl font-bold text-blue-600 mb-1">99.9%</div>
+                    <div className="text-xs sm:text-sm text-blue-800 font-medium">আপটাইম</div>
+                    <p className="text-xs text-blue-600 mt-1">গত ৩০ দিন</p>
+                  </div>
+                  <div className="p-3 sm:p-4 bg-green-50 rounded-lg border border-green-200 hover:shadow-md transition-shadow">
+                    <div className="text-lg sm:text-2xl font-bold text-green-600 mb-1">1.2s</div>
+                    <div className="text-xs sm:text-sm text-green-800 font-medium">গড় প্রতিক্রিয়া</div>
+                    <p className="text-xs text-green-600 mt-1">API বিলম্ব</p>
+                  </div>
+                  <div className="p-3 sm:p-4 bg-purple-50 rounded-lg border border-purple-200 hover:shadow-md transition-shadow">
+                    <div className="text-lg sm:text-2xl font-bold text-purple-600 mb-1">2.4MB</div>
+                    <div className="text-xs sm:text-sm text-purple-800 font-medium">স্টোরেজ ব্যবহৃত</div>
+                    <p className="text-xs text-purple-600 mt-1">ক্যাশ সাইজ</p>
+                  </div>
+                  <div className="p-3 sm:p-4 bg-orange-50 rounded-lg border border-orange-200 hover:shadow-md transition-shadow">
+                    <div className="text-lg sm:text-2xl font-bold text-orange-600 mb-1">1,234</div>
+                    <div className="text-xs sm:text-sm text-orange-800 font-medium">মোট রেকর্ড</div>
+                    <p className="text-xs text-orange-600 mt-1">ডেটাবেস সাইজ</p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -605,7 +698,59 @@ export function Settings() {
             <div className="space-y-4 sm:space-y-6">
               <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-sm border border-white/60 p-4 sm:p-6">
                 <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-6">⚙️ সাধারণ সেটিংস</h3>
-                <p className="text-sm text-gray-600">অন্যান্য ট্যাব থেকে আপনার কনফিগারেশন পরিচালনা করুন।</p>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                  <div>
+                    <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
+                      মুদ্রা চিহ্ন
+                    </label>
+                    <input
+                      type="text"
+                      value="৳"
+                      readOnly
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
+                      তারিখ ফরম্যাট
+                    </label>
+                    <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500">
+                      <option>DD/MM/YYYY</option>
+                      <option>MM/DD/YYYY</option>
+                      <option>YYYY-MM-DD</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
+                      টাইম জোন
+                    </label>
+                    <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500">
+                      <option>Asia/Dhaka (GMT+6)</option>
+                      <option>Asia/Dubai (GMT+4)</option>
+                      <option>UTC (GMT+0)</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
+                      ভাষা
+                    </label>
+                    <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500">
+                      <option>English</option>
+                      <option>বাংলা (Bengali)</option>
+                      <option>العربية (Arabic)</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="mt-6 pt-6 border-t border-gray-200">
+                  <button className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 font-medium text-sm">
+                    সংরক্ষণ করুন
+                  </button>
+                </div>
               </div>
             </div>
           )}
@@ -615,7 +760,84 @@ export function Settings() {
             <div className="space-y-4 sm:space-y-6">
               <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-sm border border-white/60 p-4 sm:p-6">
                 <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-6">🏪 স্টোর তথ্য</h3>
-                <p className="text-sm text-gray-600">স্টোরের বিস্তারিত তথ্য এখানে প্রদর্শিত হবে।</p>
+                
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
+                      স্টোর নাম
+                    </label>
+                    <input
+                      type="text"
+                      value="DUBAI BORKA HOUSE"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
+                        ফোন নম্বর
+                      </label>
+                      <input
+                        type="tel"
+                        placeholder="+880 1XXX-XXXXXX"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
+                        ইমেইল
+                      </label>
+                      <input
+                        type="email"
+                        placeholder="info@borkahouse.com"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
+                      ঠিকানা
+                    </label>
+                    <textarea
+                      rows={3}
+                      placeholder="স্টোর ঠিকানা..."
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
+                        ট্যাক্স আইডি
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="ট্যাক্স নম্বর"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
+                        ওয়েবসাইট
+                      </label>
+                      <input
+                        type="url"
+                        placeholder="https://www.borkahouse.com"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-6 pt-6 border-t border-gray-200">
+                  <button className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 font-medium text-sm">
+                    সংরক্ষণ করুন
+                  </button>
+                </div>
               </div>
             </div>
           )}
@@ -625,7 +847,37 @@ export function Settings() {
             <div className="space-y-4 sm:space-y-6">
               <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-sm border border-white/60 p-4 sm:p-6">
                 <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-6">👥 ব্যবহারকারী ব্যবস্থাপনা</h3>
-                <p className="text-sm text-gray-600">ব্যবহারকারী অ্যাকাউন্ট এবং অনুমতি পরিচালনা করুন।</p>
+                
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <div className="flex items-start gap-3">
+                    <span className="text-blue-600 text-lg sm:text-xl flex-shrink-0">ℹ️</span>
+                    <div className="flex-1">
+                      <h4 className="font-semibold text-blue-900 mb-2 text-sm sm:text-base">কর্মচারী ব্যবস্থাপনা</h4>
+                      <p className="text-xs sm:text-sm text-blue-800 mb-4">
+                        ব্যবহারকারী এবং কর্মচারী ব্যবস্থাপনা ড্যাশবোর্ড থেকে করা হয়। নতুন ব্যবহারকারী যোগ করতে:
+                      </p>
+                      <ol className="text-xs sm:text-sm text-blue-800 space-y-2 mb-4">
+                        <li>1. <strong>ড্যাশবোর্ড</strong> → <strong>কর্মচারী ব্যবস্থাপনা</strong> যান</li>
+                        <li>2. <strong>"+ কর্মচারী যোগ করুন"</strong> ক্লিক করুন</li>
+                        <li>3. প্রয়োজনীয় তথ্য পূরণ করুন</li>
+                        <li>4. শাখা নির্বাচন করুন</li>
+                        <li>5. অনুমতি সেট করুন এবং সংরক্ষণ করুন</li>
+                      </ol>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-6 p-4 bg-gray-50 border border-gray-200 rounded-lg">
+                  <h4 className="font-medium text-gray-900 mb-3 text-sm">বৈশিষ্ট্যসমূহ:</h4>
+                  <ul className="text-xs sm:text-sm text-gray-700 space-y-2">
+                    <li>✓ কর্মচারী তৈরি এবং পরিচালনা</li>
+                    <li>✓ অবস্থান এবং অনুমতি নির্ধারণ</li>
+                    <li>✓ কর্মক্ষমতা ট্র্যাকিং</li>
+                    <li>✓ কমিশন এবং বেতন পরিচালনা</li>
+                    <li>✓ জরুরি যোগাযোগ তথ্য</li>
+                    <li>✓ ব্যবহারকারী সক্রিয় করুন বা নিষ্ক্রিয় করুন</li>
+                  </ul>
+                </div>
               </div>
             </div>
           )}
