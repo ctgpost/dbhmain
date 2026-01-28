@@ -59,15 +59,20 @@ export default function CouponManagement() {
     requiresLoyaltyPoints: 0,
   });
 
-  // Queries - Handle missing loyalty API temporarily
-  const coupons: any[] = []; // Placeholder until API regenerates
-  const categories = useQuery(api.categories.list, {});
-  const branches = useQuery(api.branches.list, {});
-  const products = useQuery(api.products.list, {});
+  // Queries
+  const coupons = useQuery(api.coupons.list, {}) || [];
+  const categories = useQuery(api.categories.list, {}) || [];
+  const branches = useQuery(api.branches.list, {}) || [];
+  const products = useQuery(api.products.list, {}) || [];
 
-  // Mutations - Handle missing loyalty API temporarily
-  const createCoupon = async (data: any) => { console.log("Loyalty API not yet regenerated", data); }; // Placeholder
-  const validateCoupon = null; // Placeholder until API regenerates
+  // Mutations
+  const createCouponMutation = useMutation(api.coupons.create);
+  const updateCouponMutation = useMutation(api.coupons.update);
+  const deleteCouponMutation = useMutation(api.coupons.delete);
+  const validateCouponQuery = useQuery(api.coupons.validateCoupon, {
+    code: "",
+    orderAmount: 0,
+  });
 
   const filteredCoupons = (coupons || []).filter((coupon: any) => {
     const matchSearch =
@@ -97,31 +102,78 @@ export default function CouponManagement() {
     }
 
     try {
-      await createCoupon({
-        ...formData,
-        validFrom: formData.validFrom * 1000,
-        validUntil: formData.validUntil * 1000,
-        applicableProducts: formData.applicableProducts.length > 0 
-          ? (formData.applicableProducts as Id<"products">[]) 
-          : undefined,
-        applicableCategories: formData.applicableCategories.length > 0 
-          ? (formData.applicableCategories as Id<"categories">[]) 
-          : undefined,
-        applicableBranches: formData.applicableBranches.length > 0 
-          ? (formData.applicableBranches as Id<"branches">[]) 
-          : undefined,
-        loyaltyTiersRequired: formData.loyaltyTiersRequired.length > 0 
-          ? formData.loyaltyTiersRequired 
-          : undefined,
-        requiresLoyaltyPoints: formData.requiresLoyaltyPoints > 0 
-          ? formData.requiresLoyaltyPoints 
-          : undefined,
-      });
-      toast.success("Coupon created successfully!");
+      if (editingCoupon) {
+        await updateCouponMutation({
+          id: editingCoupon._id,
+          code: formData.code,
+          description: formData.description,
+          discountType: formData.discountType,
+          discountValue: formData.discountValue,
+          minOrderAmount: formData.minOrderAmount > 0 ? formData.minOrderAmount : undefined,
+          maxUsageCount: formData.maxUsageCount > 0 ? formData.maxUsageCount : undefined,
+          validFrom: Math.floor(formData.validFrom * 1000),
+          validUntil: Math.floor(formData.validUntil * 1000),
+          isActive: true,
+        });
+        toast.success("Coupon updated successfully!");
+      } else {
+        await createCouponMutation({
+          code: formData.code,
+          description: formData.description,
+          discountType: formData.discountType,
+          discountValue: formData.discountValue,
+          minOrderAmount: formData.minOrderAmount > 0 ? formData.minOrderAmount : undefined,
+          maxUsageCount: formData.maxUsageCount > 0 ? formData.maxUsageCount : undefined,
+          validFrom: Math.floor(formData.validFrom * 1000),
+          validUntil: Math.floor(formData.validUntil * 1000),
+          applicableProducts: formData.applicableProducts.length > 0 
+            ? (formData.applicableProducts as Id<"products">[]) 
+            : undefined,
+          applicableCategories: formData.applicableCategories.length > 0 
+            ? (formData.applicableCategories as Id<"categories">[]) 
+            : undefined,
+        });
+        toast.success("Coupon created successfully!");
+      }
       resetForm();
       setShowModal(false);
     } catch (error: any) {
-      toast.error(error.message || "Failed to create coupon");
+      toast.error(error.message || "Failed to save coupon");
+    }
+  };
+
+  const handleEditCoupon = (coupon: any) => {
+    setEditingCoupon(coupon);
+    setFormData({
+      code: coupon.code,
+      description: coupon.description || "",
+      discountType: coupon.discountType,
+      discountValue: coupon.discountValue,
+      minOrderAmount: coupon.minOrderAmount || 0,
+      maxDiscountAmount: coupon.maxDiscountAmount || 0,
+      usagePerCustomer: coupon.usagePerCustomer || 1,
+      maxUsageCount: coupon.maxUsageCount || 0,
+      validFrom: Math.floor(coupon.validFrom / 1000),
+      validUntil: Math.floor(coupon.validUntil / 1000),
+      applicableProducts: coupon.applicableProducts || [],
+      applicableCategories: coupon.applicableCategories || [],
+      applicableBranches: coupon.applicableBranches || [],
+      loyaltyTiersRequired: coupon.loyaltyTiersRequired || [],
+      requiresLoyaltyPoints: coupon.requiresLoyaltyPoints || 0,
+    });
+    setShowModal(true);
+  };
+
+  const handleDeleteCoupon = async (couponId: Id<"coupons">) => {
+    if (!confirm("Are you sure you want to delete this coupon?")) {
+      return;
+    }
+
+    try {
+      await deleteCouponMutation({ id: couponId });
+      toast.success("Coupon deleted successfully!");
+    } catch (error: any) {
+      toast.error(error.message || "Failed to delete coupon");
     }
   };
 
@@ -328,11 +380,29 @@ export default function CouponManagement() {
                                 <p className="text-sm text-slate-600">{coupon.description}</p>
                               )}
                             </div>
-                            <div className="text-right">
-                              <p className="text-2xl font-bold text-blue-600">
-                                {getDiscountDisplay(coupon || {})}
-                              </p>
-                              <p className="text-xs text-slate-600">Discount</p>
+                            <div className="flex items-start gap-2">
+                              <div className="text-right">
+                                <p className="text-2xl font-bold text-blue-600">
+                                  {getDiscountDisplay(coupon || {})}
+                                </p>
+                                <p className="text-xs text-slate-600">Discount</p>
+                              </div>
+                              <div className="flex gap-2">
+                                <button
+                                  onClick={() => handleEditCoupon(coupon)}
+                                  className="p-2 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors"
+                                  title="Edit coupon"
+                                >
+                                  <Edit2 className="w-4 h-4" />
+                                </button>
+                                <button
+                                  onClick={() => handleDeleteCoupon(coupon?._id)}
+                                  className="p-2 text-red-600 hover:bg-red-100 rounded-lg transition-colors"
+                                  title="Delete coupon"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </button>
+                              </div>
                             </div>
                           </div>
 

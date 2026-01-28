@@ -146,3 +146,54 @@ export const deactivate = mutation({
     await ctx.db.patch(args.couponId, { isActive: false });
   },
 });
+// Update coupon
+export const update = mutation({
+  args: {
+    id: v.id("coupons"),
+    code: v.optional(v.string()),
+    description: v.optional(v.string()),
+    discountType: v.optional(v.string()),
+    discountValue: v.optional(v.number()),
+    minOrderAmount: v.optional(v.number()),
+    maxUsageCount: v.optional(v.number()),
+    validFrom: v.optional(v.number()),
+    validUntil: v.optional(v.number()),
+    isActive: v.optional(v.boolean()),
+  },
+  handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) throw new Error("Not authenticated");
+
+    const coupon = await ctx.db.get(args.id);
+    if (!coupon) throw new Error("Coupon not found");
+
+    const updateObj: any = {};
+    if (args.code) updateObj.code = args.code.toUpperCase();
+    if (args.description !== undefined) updateObj.description = args.description;
+    if (args.discountType) updateObj.discountType = args.discountType;
+    if (args.discountValue !== undefined) updateObj.discountValue = args.discountValue;
+    if (args.minOrderAmount !== undefined) updateObj.minOrderAmount = args.minOrderAmount;
+    if (args.maxUsageCount !== undefined) updateObj.maxUsageCount = args.maxUsageCount;
+    if (args.validFrom !== undefined) updateObj.validFrom = args.validFrom;
+    if (args.validUntil !== undefined) updateObj.validUntil = args.validUntil;
+    if (args.isActive !== undefined) updateObj.isActive = args.isActive;
+
+    await ctx.db.patch(args.id, updateObj);
+    return args.id;
+  },
+});
+
+// Delete coupon
+export const delete_ = mutation({
+  args: { id: v.id("coupons") },
+  handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) throw new Error("Not authenticated");
+
+    const coupon = await ctx.db.get(args.id);
+    if (!coupon) throw new Error("Coupon not found");
+
+    await ctx.db.delete(args.id);
+    return true;
+  },
+});
