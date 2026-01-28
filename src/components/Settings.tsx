@@ -60,10 +60,10 @@ export function Settings() {
   const handleLogoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      // Check file size (max 500KB)
-      const maxSize = 500 * 1024; // 500KB
+      // Check file size (max 5MB for original)
+      const maxSize = 5 * 1024 * 1024; // 5MB
       if (file.size > maxSize) {
-        toast.error("লোগো সাইজ ৫০০ KB এর কম হতে হবে");
+        toast.error("লোগো সাইজ ৫ MB এর কম হতে হবে");
         return;
       }
 
@@ -71,15 +71,20 @@ export function Settings() {
       reader.onload = (e) => {
         const result = e.target?.result as string;
         
-        // For large images, try to compress by loading in canvas
+        // For images, compress aggressively
         if (file.type.startsWith('image/')) {
           const img = new Image();
           img.onload = () => {
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
             
-            // Resize image to max 200x200
-            const maxDim = 200;
+            if (!ctx) {
+              toast.error("Canvas error - unable to process image");
+              return;
+            }
+            
+            // Resize image to max 250x250 with aggressive compression
+            const maxDim = 250;
             let width = img.width;
             let height = img.height;
             
@@ -97,11 +102,27 @@ export function Settings() {
             
             canvas.width = width;
             canvas.height = height;
-            ctx?.drawImage(img, 0, 0, width, height);
+            ctx.drawImage(img, 0, 0, width, height);
             
-            // Convert to compressed base64
-            const compressedBase64 = canvas.toDataURL('image/jpeg', 0.8);
+            // Try different compression levels to find the smallest
+            let compressedBase64 = canvas.toDataURL('image/jpeg', 0.6);
+            
+            // If still too large, try 0.5
+            if (compressedBase64.length > 1000000) {
+              compressedBase64 = canvas.toDataURL('image/jpeg', 0.5);
+            }
+            
+            // If still too large, try 0.4
+            if (compressedBase64.length > 800000) {
+              compressedBase64 = canvas.toDataURL('image/jpeg', 0.4);
+            }
+            
+            console.log(`Compressed logo size: ${(compressedBase64.length / 1024).toFixed(2)} KB`);
             setLogoPreview(compressedBase64);
+            toast.success(`লোগো আপলোড হয়েছে (${(compressedBase64.length / 1024).toFixed(2)} KB)`);
+          };
+          img.onerror = () => {
+            toast.error("লোগো লোড করতে ব্যর্থ");
           };
           img.src = result;
         } else {
@@ -130,6 +151,7 @@ export function Settings() {
         ...(logoPreview && { logo: logoPreview }),
         storeTitle: storeTitle.trim(),
         tagline: tagline.trim(),
+        clearLogo: false,
       });
       
       console.log("Save result:", result);

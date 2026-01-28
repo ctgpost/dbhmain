@@ -33,6 +33,11 @@ export const update = mutation({
     const userId = await getAuthUserId(ctx);
     if (!userId) throw new Error("Not authenticated");
 
+    // Validate logo size (base64 strings can be large)
+    if (args.logo && args.logo.length > 1500000) {
+      throw new Error("Logo is too large. Please upload a smaller image.");
+    }
+
     // Get existing settings
     const existingSettings = await ctx.db.query("storeSettings").first();
 
