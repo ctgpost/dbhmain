@@ -647,25 +647,25 @@ export function Settings() {
           <div className="bg-white rounded-lg shadow p-4 sm:p-6 border border-gray-200">
             <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-6">Backup & Restore</h3>
             
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 md:gap-6 mb-6">
               {/* Export Data Card */}
-              <div className="border border-gray-200 rounded-lg p-4 sm:p-6 hover:shadow-md transition-shadow">
+              <div className="border border-gray-200 rounded-lg p-3 sm:p-4 md:p-6 hover:shadow-md transition-shadow">
                 <div className="flex items-start gap-3 mb-4">
-                  <span className="text-2xl">📤</span>
-                  <h4 className="font-semibold text-gray-900">Export Data</h4>
+                  <span className="text-xl sm:text-2xl flex-shrink-0">📤</span>
+                  <h4 className="font-semibold text-gray-900 text-sm sm:text-base">Export Data</h4>
                 </div>
-                <p className="text-xs sm:text-sm text-gray-600 mb-4">
+                <p className="text-xs sm:text-sm text-gray-600 mb-4 line-clamp-3">
                   Download a complete backup of your store data including products, sales, and customers.
                 </p>
                 <button
                   onClick={exportData}
                   disabled={isExporting || !exportAllData}
-                  className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 font-medium text-sm transition-colors"
+                  className="w-full px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 font-medium text-xs sm:text-sm transition-colors"
                 >
                   {isExporting ? (
-                    <div className="flex items-center justify-center">
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                      Exporting...
+                    <div className="flex items-center justify-center gap-2">
+                      <div className="animate-spin rounded-full h-3 w-3 sm:h-4 sm:w-4 border-b-2 border-white"></div>
+                      <span>Exporting...</span>
                     </div>
                   ) : (
                     "📥 Export All Data"
@@ -674,12 +674,12 @@ export function Settings() {
               </div>
 
               {/* Import Data Card */}
-              <div className="border border-gray-200 rounded-lg p-4 sm:p-6 hover:shadow-md transition-shadow">
+              <div className="border border-gray-200 rounded-lg p-3 sm:p-4 md:p-6 hover:shadow-md transition-shadow">
                 <div className="flex items-start gap-3 mb-4">
-                  <span className="text-2xl">📥</span>
-                  <h4 className="font-semibold text-gray-900">Import Data</h4>
+                  <span className="text-xl sm:text-2xl flex-shrink-0">📥</span>
+                  <h4 className="font-semibold text-gray-900 text-sm sm:text-base">Import Data</h4>
                 </div>
-                <p className="text-xs sm:text-sm text-gray-600 mb-4">
+                <p className="text-xs sm:text-sm text-gray-600 mb-4 line-clamp-3">
                   Restore your store data from a previously exported backup file.
                 </p>
                 <input
@@ -687,21 +687,21 @@ export function Settings() {
                   accept=".json"
                   onChange={handleFileImport}
                   disabled={isImporting}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs sm:file:text-sm file:font-medium file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100"
+                  className="w-full px-2 sm:px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 file:mr-2 sm:file:mr-4 file:py-1 sm:file:py-2 file:px-2 sm:file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-medium file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100"
                 />
                 {isImporting && (
-                  <div className="mt-2 flex items-center text-xs sm:text-sm text-gray-600">
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-purple-600 mr-2"></div>
-                    Importing data...
+                  <div className="mt-2 flex items-center text-xs sm:text-sm text-gray-600 gap-2">
+                    <div className="animate-spin rounded-full h-3 w-3 sm:h-4 sm:w-4 border-b-2 border-purple-600 flex-shrink-0"></div>
+                    <span>Importing data...</span>
                   </div>
                 )}
               </div>
             </div>
 
-            <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-              <div className="flex flex-col sm:flex-row sm:items-start gap-3">
-                <span className="text-yellow-600 text-xl flex-shrink-0">⚠️</span>
-                <div>
+            <div className="p-3 sm:p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+              <div className="flex flex-col sm:flex-row sm:items-start gap-2 sm:gap-3">
+                <span className="text-yellow-600 text-lg sm:text-xl flex-shrink-0 pt-0.5">⚠️</span>
+                <div className="flex-1 min-w-0">
                   <h4 className="font-medium text-yellow-800 text-sm sm:text-base">Important Notes:</h4>
                   <ul className="text-xs sm:text-sm text-yellow-700 mt-2 space-y-1">
                     <li>• Always backup your data before importing</li>
@@ -830,50 +830,50 @@ export function Settings() {
           <div className="bg-white rounded-lg shadow p-4 sm:p-6 border border-gray-200">
             <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-6">System Maintenance</h3>
             
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-6">
               {/* Clear Cache Card */}
-              <div className="border border-gray-200 rounded-lg p-4 sm:p-6 hover:shadow-md transition-shadow">
+              <div className="border border-gray-200 rounded-lg p-3 sm:p-4 md:p-6 hover:shadow-md transition-shadow">
                 <div className="mb-4">
                   <h4 className="font-semibold text-gray-900 text-sm sm:text-base">🧹 Clear Cache</h4>
-                  <p className="text-xs sm:text-sm text-gray-600 mt-2">Clear application cache to improve performance and free up memory</p>
+                  <p className="text-xs sm:text-sm text-gray-600 mt-2 line-clamp-2">Clear application cache to improve performance and free up memory</p>
                 </div>
                 <button
                   onClick={clearCache}
-                  className="w-full px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg font-medium text-sm transition-colors"
+                  className="w-full px-3 sm:px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg font-medium text-xs sm:text-sm transition-colors"
                 >
                   Clear Cache
                 </button>
               </div>
 
               {/* Optimize Database Card */}
-              <div className="border border-blue-200 rounded-lg p-4 sm:p-6 bg-blue-50 hover:shadow-md transition-shadow">
+              <div className="border border-blue-200 rounded-lg p-3 sm:p-4 md:p-6 bg-blue-50 hover:shadow-md transition-shadow">
                 <div className="mb-4">
                   <h4 className="font-semibold text-blue-900 text-sm sm:text-base">⚙️ Optimize Database</h4>
-                  <p className="text-xs sm:text-sm text-blue-700 mt-2">Optimize database for better query performance and efficiency</p>
+                  <p className="text-xs sm:text-sm text-blue-700 mt-2 line-clamp-2">Optimize database for better query performance and efficiency</p>
                 </div>
                 <button
                   onClick={optimizeDatabase}
-                  className="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium text-sm transition-colors"
+                  className="w-full px-3 sm:px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium text-xs sm:text-sm transition-colors"
                 >
                   Optimize
                 </button>
               </div>
 
               {/* Reset Application Card */}
-              <div className="border border-red-200 rounded-lg p-4 sm:p-6 bg-red-50 hover:shadow-md transition-shadow">
+              <div className="border border-red-200 rounded-lg p-3 sm:p-4 md:p-6 bg-red-50 hover:shadow-md transition-shadow">
                 <div className="mb-4">
                   <h4 className="font-semibold text-red-900 text-sm sm:text-base">🔄 Reset to Default</h4>
-                  <p className="text-xs sm:text-sm text-red-700 mt-2">⚠️ Permanently delete all data and restore defaults</p>
+                  <p className="text-xs sm:text-sm text-red-700 mt-2 line-clamp-2">⚠️ Permanently delete all data and restore defaults</p>
                 </div>
                 <button
                   onClick={resetApplication}
                   disabled={isResetting}
-                  className="w-full px-4 py-2 bg-red-600 hover:bg-red-700 disabled:bg-red-400 text-white rounded-lg font-medium text-sm transition-colors"
+                  className="w-full px-3 sm:px-4 py-2 bg-red-600 hover:bg-red-700 disabled:bg-red-400 text-white rounded-lg font-medium text-xs sm:text-sm transition-colors"
                 >
                   {isResetting ? (
-                    <div className="flex items-center justify-center">
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                      Resetting...
+                    <div className="flex items-center justify-center gap-2">
+                      <div className="animate-spin rounded-full h-3 w-3 sm:h-4 sm:w-4 border-b-2 border-white"></div>
+                      <span>Resetting...</span>
                     </div>
                   ) : (
                     "Reset Application"
@@ -887,26 +887,26 @@ export function Settings() {
           <div className="bg-white rounded-lg shadow p-4 sm:p-6 border border-gray-200">
             <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-6">Performance Metrics</h3>
             
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-              <div className="p-4 sm:p-6 bg-blue-50 rounded-lg border border-blue-200 hover:shadow-md transition-shadow">
-                <div className="text-2xl sm:text-3xl font-bold text-blue-600 mb-1">99.9%</div>
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 md:gap-6">
+              <div className="p-3 sm:p-4 md:p-6 bg-blue-50 rounded-lg border border-blue-200 hover:shadow-md transition-shadow">
+                <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-blue-600 mb-1">99.9%</div>
                 <div className="text-xs sm:text-sm text-blue-800 font-medium">Uptime</div>
-                <p className="text-xs text-blue-600 mt-2">Last 30 days</p>
+                <p className="text-xs text-blue-600 mt-1">Last 30 days</p>
               </div>
-              <div className="p-4 sm:p-6 bg-green-50 rounded-lg border border-green-200 hover:shadow-md transition-shadow">
-                <div className="text-2xl sm:text-3xl font-bold text-green-600 mb-1">1.2s</div>
+              <div className="p-3 sm:p-4 md:p-6 bg-green-50 rounded-lg border border-green-200 hover:shadow-md transition-shadow">
+                <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-green-600 mb-1">1.2s</div>
                 <div className="text-xs sm:text-sm text-green-800 font-medium">Avg Response</div>
-                <p className="text-xs text-green-600 mt-2">API latency</p>
+                <p className="text-xs text-green-600 mt-1">API latency</p>
               </div>
-              <div className="p-4 sm:p-6 bg-purple-50 rounded-lg border border-purple-200 hover:shadow-md transition-shadow">
-                <div className="text-2xl sm:text-3xl font-bold text-purple-600 mb-1">2.4MB</div>
+              <div className="p-3 sm:p-4 md:p-6 bg-purple-50 rounded-lg border border-purple-200 hover:shadow-md transition-shadow">
+                <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-purple-600 mb-1">2.4MB</div>
                 <div className="text-xs sm:text-sm text-purple-800 font-medium">Storage Used</div>
-                <p className="text-xs text-purple-600 mt-2">Cache size</p>
+                <p className="text-xs text-purple-600 mt-1">Cache size</p>
               </div>
-              <div className="p-4 sm:p-6 bg-orange-50 rounded-lg border border-orange-200 hover:shadow-md transition-shadow">
-                <div className="text-2xl sm:text-3xl font-bold text-orange-600 mb-1">1,234</div>
+              <div className="p-3 sm:p-4 md:p-6 bg-orange-50 rounded-lg border border-orange-200 hover:shadow-md transition-shadow">
+                <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-orange-600 mb-1">1,234</div>
                 <div className="text-xs sm:text-sm text-orange-800 font-medium">Total Records</div>
-                <p className="text-xs text-orange-600 mt-2">Database size</p>
+                <p className="text-xs text-orange-600 mt-1">Database size</p>
               </div>
             </div>
           </div>
