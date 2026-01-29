@@ -4,7 +4,7 @@ import { api } from "../../convex/_generated/api";
 import { toast } from "sonner";
 import type { Id } from "../../convex/_generated/dataModel";
 
-export function WhatsAppOrders() {
+export default function WhatsAppOrders() {
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [selectedOrder, setSelectedOrder] = useState<Id<"whatsappOrders"> | null>(null);
   const [showCreateReturn, setShowCreateReturn] = useState(false);

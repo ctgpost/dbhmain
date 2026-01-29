@@ -8,7 +8,7 @@ import { RuleBasedUserManagement } from "./RuleBasedUserManagement";
 import CustomerLoyalty from "./CustomerLoyalty";
 import CouponManagement from "./CouponManagement";
 
-export function Settings() {
+export default function Settings() {
   const [activeTab, setActiveTab] = useState("general");
   const [isExporting, setIsExporting] = useState(false);
   const [isImporting, setIsImporting] = useState(false);

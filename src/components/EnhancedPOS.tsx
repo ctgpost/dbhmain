@@ -20,7 +20,7 @@ interface CartItem {
   availableSizes?: string[];
 }
 
-export function EnhancedPOS() {
+export default function EnhancedPOS() {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<Id<"categories"> | undefined>();

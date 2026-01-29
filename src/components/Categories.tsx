@@ -13,7 +13,7 @@ interface Category {
   _creationTime: number;
 }
 
-export function Categories() {
+export default function Categories() {
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);

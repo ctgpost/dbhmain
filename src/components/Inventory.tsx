@@ -42,7 +42,7 @@ const generateNextModelNumber = (existingProducts: any[]) => {
   return `${prefix}${nextNumber.toString().padStart(4, '0')}`;
 };
 
-export function Inventory() {
+export default function Inventory() {
   const [showAddProduct, setShowAddProduct] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterCategory, setFilterCategory] = useState("");

@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { Id } from "../../convex/_generated/dataModel";
 import JsBarcode from "jsbarcode";
 
-export function BarcodeManager() {
+export default function BarcodeManager() {
   const [activeTab, setActiveTab] = useState("generate");
   const [selectedProducts, setSelectedProducts] = useState<Id<"products">[]>([]);
   const [searchTerm, setSearchTerm] = useState("");

@@ -4,7 +4,7 @@ import { api } from "../../convex/_generated/api";
 import { Id } from "../../convex/_generated/dataModel";
 import { InvoiceModal } from "./InvoiceModal";
 
-export function Sales() {
+export default function Sales() {
   const [selectedSale, setSelectedSale] = useState<any>(null);
   const [showInvoice, setShowInvoice] = useState(false);
   const [dateFilter, setDateFilter] = useState({

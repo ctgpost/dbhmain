@@ -1,5 +1,5 @@
 // This component has been removed as suppliers feature is no longer needed
-export function Suppliers() {
+export default function Suppliers() {
   return (
     <div className="flex items-center justify-center h-64">
       <div className="text-center">

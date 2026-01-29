@@ -35,7 +35,7 @@ interface Product {
   isActive: boolean;
 }
 
-export function POS() {
+export default function POS() {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);

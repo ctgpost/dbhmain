@@ -1,5 +1,5 @@
 // This component has been removed as purchase receiving feature is no longer needed
-export function PurchaseReceiving() {
+export default function PurchaseReceiving() {
   return (
     <div className="flex items-center justify-center h-64">
       <div className="text-center">

@@ -4,7 +4,7 @@ import { api } from "../../convex/_generated/api";
 import { toast } from "sonner";
 import type { Id } from "../../convex/_generated/dataModel";
 
-export function EmployeeManagement() {
+export default function EmployeeManagement() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState<Id<"employees"> | null>(null);

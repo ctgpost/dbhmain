@@ -22,7 +22,7 @@ interface Customer {
   _creationTime: number;
 }
 
-export function Customers() {
+export default function Customers() {
   const [showAddCustomer, setShowAddCustomer] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null);

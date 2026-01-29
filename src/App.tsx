@@ -8,21 +8,21 @@ import { LazyLoadingFallback, preloadComponents } from "./utils/lazyLoad";
 import { registerServiceWorkerCacheHandlers } from "./utils/cacheService";
 
 // Lazy load heavy components
-const Inventory = lazy(() => import("./components/Inventory").then(m => ({ default: m.Inventory })));
-const POS = lazy(() => import("./components/POS").then(m => ({ default: m.POS })));
-const EnhancedPOS = lazy(() => import("./components/EnhancedPOS").then(m => ({ default: m.EnhancedPOS })));
-const Sales = lazy(() => import("./components/Sales").then(m => ({ default: m.Sales })));
-const Customers = lazy(() => import("./components/Customers").then(m => ({ default: m.Customers })));
-const Suppliers = lazy(() => import("./components/Suppliers").then(m => ({ default: m.Suppliers })));
-const PurchaseReceiving = lazy(() => import("./components/PurchaseReceiving").then(m => ({ default: m.PurchaseReceiving })));
-const BarcodeManager = lazy(() => import("./components/BarcodeManager").then(m => ({ default: m.BarcodeManager })));
-const Reports = lazy(() => import("./components/Reports").then(m => ({ default: m.Reports })));
-const Settings = lazy(() => import("./components/Settings").then(m => ({ default: m.Settings })));
-const Categories = lazy(() => import("./components/Categories").then(m => ({ default: m.Categories })));
-const EmployeeManagement = lazy(() => import("./components/EmployeeManagement").then(m => ({ default: m.EmployeeManagement })));
-const DiscountManagement = lazy(() => import("./components/DiscountManagement").then(m => ({ default: m.DiscountManagement })));
-const WhatsAppOrders = lazy(() => import("./components/WhatsAppOrders").then(m => ({ default: m.WhatsAppOrders })));
-const OnlineStore = lazy(() => import("./components/OnlineStore").then(m => ({ default: m.OnlineStore })));
+const Inventory = lazy(() => import("./components/Inventory"));
+const POS = lazy(() => import("./components/POS"));
+const EnhancedPOS = lazy(() => import("./components/EnhancedPOS"));
+const Sales = lazy(() => import("./components/Sales"));
+const Customers = lazy(() => import("./components/Customers"));
+const Suppliers = lazy(() => import("./components/Suppliers"));
+const PurchaseReceiving = lazy(() => import("./components/PurchaseReceiving"));
+const BarcodeManager = lazy(() => import("./components/BarcodeManager"));
+const Reports = lazy(() => import("./components/Reports"));
+const Settings = lazy(() => import("./components/Settings"));
+const Categories = lazy(() => import("./components/Categories"));
+const EmployeeManagement = lazy(() => import("./components/EmployeeManagement"));
+const DiscountManagement = lazy(() => import("./components/DiscountManagement"));
+const WhatsAppOrders = lazy(() => import("./components/WhatsAppOrders"));
+const OnlineStore = lazy(() => import("./components/OnlineStore"));
 
 export default function App() {
   const [activeTab, setActiveTab] = useState("dashboard");
