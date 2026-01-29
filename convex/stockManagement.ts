@@ -144,6 +144,7 @@ export const getLowStockItems = query({
               branchId: args.branchId,
             };
           }
+          return null;
         } else {
           // Get low stock items across all branches
           const lowItems = product.branchStock
@@ -161,10 +162,9 @@ export const getLowStockItems = query({
               shortage: bs.minStockLevel - bs.currentStock,
               branchId: bs.branchId,
               branchName: bs.branchName,
-            }));
-          return lowItems || [];
+            })) || [];
+          return lowItems;
         }
-        return null;
       })
       .flat()
       .filter((item: any) => item !== null);

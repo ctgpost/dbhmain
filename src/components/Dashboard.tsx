@@ -54,9 +54,9 @@ export function Dashboard() {
     .slice(0, 5);
 
   return (
-    <div className="flex flex-col h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50">
+    <div className="w-full bg-gradient-to-br from-slate-50 via-white to-slate-50">
       {/* Fixed Header */}
-      <div className="fixed top-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-sm border-b border-gray-200/50 shadow-sm">
+      <div className="fixed top-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-sm border-b border-gray-200/50 shadow-sm w-full">
         <div className="p-4 sm:p-6 max-w-7xl mx-auto">
           <div className="flex items-center gap-4 mb-3">
             <div className="flex-shrink-0">
@@ -86,8 +86,8 @@ export function Dashboard() {
       </div>
 
       {/* Scrollable Content */}
-      <div className="flex-1 overflow-y-auto mt-44 sm:mt-40">
-        <div className="space-y-6 p-4 sm:p-6 max-w-7xl mx-auto">
+      <div className="pt-44 sm:pt-48 pb-8 px-4 sm:px-6 max-w-7xl mx-auto">
+        <div className="space-y-6">
       {/* Key Metrics - iOS Style Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
         {/* Total Products Card */}
@@ -362,10 +362,9 @@ export function Dashboard() {
             <p className="text-gray-400 text-center py-8 font-medium">No recent sales</p>
           )}
         </div>
+      </div>
         </div>
       </div>
-    </div>
-  );
     </div>
   );
 }

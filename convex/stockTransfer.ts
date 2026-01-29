@@ -19,7 +19,7 @@ export const list = query({
 
     // Filter by status if provided
     if (args.status) {
-      return transfers.filter((t: any) => t.status === args.status);
+      transfers = transfers.filter((t: any) => t.status === args.status);
     }
 
     return transfers;
@@ -294,6 +294,8 @@ export const getTransferHistory = query({
     const incoming = allTransfers
       .filter((t: any) => t.destinationBranchId === args.branchId)
       .sort((a: any, b: any) => b.createdAt - a.createdAt);
+
+    return { outgoing, incoming };
   },
 });
 

@@ -27,7 +27,7 @@ interface Branch {
 export function BranchManagement() {
   const [showAddBranch, setShowAddBranch] = useState(false);
   const [editingBranch, setEditingBranch] = useState<Branch | null>(null);
-  const [selectedBranch, setSelectedBranch] = useState<Id<"branches"> | null>(null);
+  const [selectedBranch, setSelectedBranch] = useState<string | null>(null);
 
   const [newBranch, setNewBranch] = useState({
     name: "",
@@ -40,11 +40,11 @@ export function BranchManagement() {
     managerName: "",
   });
 
-  const branches = useQuery(api.branches.list, {});
-  const employees = useQuery(api.employees.list, {});
+  const branches = useQuery(api.branches.list, {}) || [];
+  const employees = useQuery(api.employees.list, {}) || [];
   const branchStats = useQuery(api.branches.getStats, 
-    selectedBranch ? { branchId: selectedBranch } : {}
-  );
+    selectedBranch ? { branchId: selectedBranch as unknown as Id<"branches"> } : {}
+  ) || {};
   
   const createBranch = useMutation(api.branches.create);
   const updateBranch = useMutation(api.branches.update);
@@ -209,12 +209,12 @@ export function BranchManagement() {
         </label>
         <select
           value={selectedBranch || ""}
-          onChange={(e) => setSelectedBranch(e.target.value as Id<"branches"> || null)}
+          onChange={(e) => setSelectedBranch(e.target.value || null)}
           className="w-full md:w-64 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
         >
           <option value="">All Branches Overview</option>
           {branches.map((branch) => (
-            <option key={branch._id} value={branch._id}>
+            <option key={branch._id} value={branch._id as unknown as string}>
               {branch.name} ({branch.code})
             </option>
           ))}
@@ -421,7 +421,7 @@ export function BranchManagement() {
                     <select
                       value={newBranch.managerId}
                       onChange={(e) => {
-                        const selectedEmployee = employees?.find(emp => emp._id === e.target.value);
+                        const selectedEmployee = employees?.find(emp => emp._id === (e.target.value as Id<"employees">));
                         setNewBranch({
                           ...newBranch, 
                           managerId: e.target.value,

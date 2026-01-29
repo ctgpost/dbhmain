@@ -72,6 +72,8 @@ export default function App() {
     { id: "pos", name: "POS", icon: "🏷️" },
     { id: "inventory", name: "Inventory", icon: "📦" },
     { id: "categories", name: "Categories", icon: "📂" },
+    { id: "stock-management", name: "Stock Mgmt", icon: "🏭" },
+    { id: "stock-transfer", name: "Stock Transfer", icon: "🔄" },
     { id: "sales", name: "Sales", icon: "💰" },
     { id: "customers", name: "Customers", icon: "👥" },
     { id: "employees", name: "Employees", icon: "👔" },
@@ -159,21 +161,24 @@ export default function App() {
         <LoginWrapper />
       </Unauthenticated>
       <Authenticated>
-        <div className="min-h-screen bg-gray-50 pb-16 lg:pb-0">
+        <div className="min-h-screen flex flex-col bg-gray-50 pb-16 lg:pb-0">
           {/* Mobile Header */}
           <div className="lg:hidden bg-white shadow-sm border-b border-gray-200 sticky top-0 z-40">
             <div className="flex items-center justify-between px-4 py-3">
               <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="flex items-center space-x-2 text-purple-600"
+                className="flex items-center space-x-2 text-purple-600 hover:text-purple-700"
               >
-                {storeSettings?.logo ? (
-                  <img src={storeSettings.logo} alt="Logo" className="h-10 w-10 object-contain flex-shrink-0" />
-                ) : (
-                  <span className="text-2xl">🏪</span>
-                )}
-                <span className="font-bold text-sm">{storeSettings?.storeTitle || "DUBAI BORKA HOUSE"}</span>
+                <span className="text-2xl">☰</span>
               </button>
+              {storeSettings?.logo ? (
+                <img src={storeSettings.logo} alt="Logo" className="h-10 w-10 object-contain flex-shrink-0" />
+              ) : (
+                <span className="text-2xl">🏪</span>
+              )}
+              <span className="text-xs font-bold text-gray-800 hidden sm:inline">
+                {storeSettings?.storeTitle || "DUBAI BORKA HOUSE"}
+              </span>
               <div className="flex items-center space-x-2">
                 <span className="text-xs text-gray-600 hidden sm:block">
                   {mobileMenuItems.find(item => item.id === activeTab)?.name}

@@ -32,22 +32,40 @@ interface StockTransfer {
   completedAt?: number;
 }
 
+interface TransferStats {
+  totalTransfers: number;
+  completed: number;
+  pending: number;
+  approved: number;
+  inTransit: number;
+  cancelled: number;
+  totalItemsTransferred: number;
+}
+
 export default function StockTransferManagement() {
   const [activeTab, setActiveTab] = useState<"create" | "history" | "pending" | "statistics">(
     "create"
   );
-  const [selectedSourceBranch, setSelectedSourceBranch] = useState<Id<"branches"> | "">("");
-  const [selectedDestBranch, setSelectedDestBranch] = useState<Id<"branches"> | "">("");
+  const [selectedSourceBranch, setSelectedSourceBranch] = useState<string>("");
+  const [selectedDestBranch, setSelectedDestBranch] = useState<string>("");
   const [selectedProducts, setSelectedProducts] = useState<StockTransferItem[]>([]);
   const [transferNotes, setTransferNotes] = useState("");
   const [showApprovalModal, setShowApprovalModal] = useState(false);
   const [selectedTransfer, setSelectedTransfer] = useState<StockTransfer | null>(null);
 
-  const branches = useQuery(api.branches.list, {});
-  const products = useQuery(api.products.list, {});
-  const transfers = useQuery(api.stockTransfer.list, {});
-  const pendingTransfers = useQuery(api.stockTransfer.list, { status: "pending" });
-  const transferStats = useQuery(api.stockTransfer.getStatistics, {});
+  const branches = useQuery(api.branches.list, {}) || [];
+  const products = useQuery(api.products.list, {}) || [];
+  const transfers = useQuery(api.stockTransfer.list, {}) || [];
+  const pendingTransfers = useQuery(api.stockTransfer.list, { status: "pending" }) || [];
+  const transferStats = (useQuery(api.stockTransfer.getStatistics, {}) as TransferStats | null) || {
+    totalTransfers: 0,
+    completed: 0,
+    pending: 0,
+    approved: 0,
+    inTransit: 0,
+    cancelled: 0,
+    totalItemsTransferred: 0,
+  };
 
   const createTransfer = useMutation(api.stockTransfer.create);
   const approveTransfer = useMutation(api.stockTransfer.approve);
@@ -61,12 +79,12 @@ export default function StockTransferManagement() {
       return;
     }
 
-    const product = products?.find((p: any) => p._id === productId);
+    const product = products?.find((p: any) => p._id === (productId as Id<"products">));
     if (!product) return;
 
     // Find stock in selected source branch
     const branchStock = product.branchStock?.find(
-      (bs: any) => bs.branchId === selectedSourceBranch
+      (bs: any) => (bs.branchId as unknown as string) === selectedSourceBranch
     );
 
     if (!branchStock || branchStock.currentStock === 0) {
@@ -76,7 +94,7 @@ export default function StockTransferManagement() {
 
     if (
       !selectedProducts.find(
-        (p) => p.productId === productId
+        (p) => p.productId === (productId as Id<"products">)
       )
     ) {
       setSelectedProducts([
@@ -95,7 +113,7 @@ export default function StockTransferManagement() {
 
   const handleUpdateQuantity = (productId: string, newQuantity: number) => {
     const product = selectedProducts.find(
-      (p) => p.productId === productId
+      (p) => p.productId === (productId as Id<"products">)
     );
     if (product && newQuantity > 0 && newQuantity <= product.currentStock) {
       setSelectedProducts(
@@ -112,7 +130,7 @@ export default function StockTransferManagement() {
 
   const handleRemoveProduct = (productId: string) => {
     setSelectedProducts(
-      selectedProducts.filter((p) => p.productId !== productId)
+      selectedProducts.filter((p) => p.productId !== (productId as Id<"products">))
     );
   };
 
@@ -130,17 +148,17 @@ export default function StockTransferManagement() {
 
     try {
       const sourceBranch = branches?.find(
-        (b: any) => b._id === selectedSourceBranch
+        (b: any) => (b._id as unknown as string) === selectedSourceBranch
       );
-      const destBranch = branches?.find(
-        (b: any) => b._id === selectedDestBranch
+      const destinationBranch = branches?.find(
+        (b: any) => (b._id as unknown as string) === selectedDestBranch
       );
 
       const transferId = await createTransfer({
-        sourceBranchId: selectedSourceBranch,
+        sourceBranchId: selectedSourceBranch as unknown as Id<"branches">,
         sourceBranchName: sourceBranch?.name || "Unknown",
-        destinationBranchId: selectedDestBranch,
-        destinationBranchName: destBranch?.name || "Unknown",
+        destinationBranchId: selectedDestBranch as unknown as Id<"branches">,
+        destinationBranchName: destinationBranch?.name || "Unknown",
         items: selectedProducts,
         notes: transferNotes,
         requestedBy: "Current User",
@@ -260,12 +278,12 @@ export default function StockTransferManagement() {
                 </label>
                 <select
                   value={selectedSourceBranch}
-                  onChange={(e) => setSelectedSourceBranch(e.target.value as Id<"branches">)}
+                  onChange={(e) => setSelectedSourceBranch(e.target.value)}
                   className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">Select source branch</option>
                   {branches?.map((branch: any) => (
-                    <option key={branch._id} value={branch._id}>
+                    <option key={branch._id} value={branch._id as unknown as string}>
                       {branch.name}
                     </option>
                   ))}
@@ -277,12 +295,12 @@ export default function StockTransferManagement() {
                 </label>
                 <select
                   value={selectedDestBranch}
-                  onChange={(e) => setSelectedDestBranch(e.target.value as Id<"branches">)}
+                  onChange={(e) => setSelectedDestBranch(e.target.value)}
                   className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">Select destination branch</option>
                   {branches?.map((branch: any) => (
-                    <option key={branch._id} value={branch._id}>
+                    <option key={branch._id} value={branch._id as unknown as string}>
                       {branch.name}
                     </option>
                   ))}
@@ -310,12 +328,12 @@ export default function StockTransferManagement() {
                     {products?.map((product: any) => {
                       const branchStock = product.branchStock?.find(
                         (bs: any) =>
-                          bs.branchId === selectedSourceBranch
+                          (bs.branchId as unknown as string) === selectedSourceBranch
                       );
                       return (
                         <option
                           key={product._id}
-                          value={product._id}
+                          value={product._id as unknown as string}
                           disabled={
                             !branchStock ||
                             branchStock.currentStock === 0 ||
@@ -357,7 +375,7 @@ export default function StockTransferManagement() {
                           value={item.quantity}
                           onChange={(e) =>
                             handleUpdateQuantity(
-                              item.productId,
+                              item.productId as unknown as string,
                               parseInt(e.target.value)
                             )
                           }
@@ -365,7 +383,7 @@ export default function StockTransferManagement() {
                         />
                         <button
                           type="button"
-                          onClick={() => handleRemoveProduct(item.productId)}
+                          onClick={() => handleRemoveProduct(item.productId as unknown as string)}
                           className="text-red-600 hover:text-red-800"
                         >
                           ❌
@@ -419,8 +437,8 @@ export default function StockTransferManagement() {
                         {transfer.sourceBranchName} → {transfer.destinationBranchName}
                       </p>
                     </div>
-                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${statusColors["pending"]}`}>
-                      {statusIcons["pending"]} {transfer.status.toUpperCase()}
+                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${statusColors[transfer.status]}`}>
+                      {statusIcons[transfer.status]} {transfer.status.toUpperCase()}
                     </span>
                   </div>
 
