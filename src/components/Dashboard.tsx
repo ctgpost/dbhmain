@@ -50,11 +50,11 @@ export function Dashboard() {
         <div className="mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-4">
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <div className="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-lg bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center border border-purple-300 shadow-md">
+              <div className="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-lg bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center border border-purple-300 shadow-md overflow-hidden">
                 {storeSettings?.logo ? (
                   <img src={storeSettings.logo} alt="Logo" className="w-8 h-8 sm:w-10 sm:h-10 object-contain" />
                 ) : (
-                  <span className="text-lg sm:text-xl">🏪</span>
+                  <img src="/LOGO2.png" alt="Dubai Borka House" className="w-8 h-8 sm:w-10 sm:h-10 object-contain" />
                 )}
               </div>
               <div className="hidden sm:block">

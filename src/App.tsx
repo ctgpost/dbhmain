@@ -178,11 +178,11 @@ export default function App() {
 
               {/* Logo & Store Title */}
               <div className="flex items-center gap-2 flex-1">
-                <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-white/10 border border-white/20 flex items-center justify-center">
+                <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-white/10 border border-white/20 flex items-center justify-center overflow-hidden">
                   {storeSettings?.logo ? (
                     <img src={storeSettings.logo} alt="Logo" className="w-8 h-8 object-contain" />
                   ) : (
-                    <span className="text-lg">🏪</span>
+                    <img src="/LOGO2.png" alt="Dubai Borka House" className="w-8 h-8 object-contain" />
                   )}
                 </div>
                 <h1 className="text-sm font-bold text-white truncate">
@@ -228,11 +228,11 @@ export default function App() {
               {/* Logo Section */}
               <div className="flex items-center justify-center flex-shrink-0 px-6 py-6 border-b border-white/10">
                 <div className="text-center">
-                  <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-purple-400/20 to-blue-400/20 border border-white/20 flex items-center justify-center mb-3 mx-auto shadow-lg">
+                  <div className="w-16 h-16 rounded-full bg-gradient-to-br from-purple-400/20 to-blue-400/20 border border-white/20 flex items-center justify-center mb-3 mx-auto shadow-lg overflow-hidden">
                     {storeSettings?.logo ? (
                       <img src={storeSettings.logo} alt="Logo" className="w-14 h-14 object-contain" />
                     ) : (
-                      <span className="text-3xl">🏪</span>
+                      <img src="/LOGO2.png" alt="Dubai Borka House" className="w-14 h-14 object-contain rounded-full" />
                     )}
                   </div>
                   <h2 className="text-sm font-bold text-white mb-1">

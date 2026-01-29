@@ -31,7 +31,14 @@ export function LoginWrapper() {
                 className="w-28 h-28 object-contain"
               />
             ) : (
-              <span className="text-6xl">🏪</span>
+              <img 
+                src="/LOGO2.png" 
+                alt="Dubai Borka House" 
+                className="w-28 h-28 object-contain rounded-full"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = "🏪";
+                }}
+              />
             )}
           </div>
           <h1 className="text-3xl sm:text-4xl font-bold text-white mb-2">
