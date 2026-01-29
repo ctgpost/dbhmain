@@ -218,7 +218,10 @@ export default function Inventory() {
       }
 
       // Validate variants
-      const validVariants = productVariants.filter(v => v.color && v.size && v.stock && v.stock > 0);
+      const validVariants = productVariants.filter(v => 
+        v.color?.trim() && v.size?.trim() && typeof v.stock === 'number' && v.stock > 0
+      );
+      
       if (validVariants.length === 0) {
         toast.error("Please add at least one valid color/size/stock combination with stock quantity greater than 0");
         return;
@@ -234,15 +237,15 @@ export default function Inventory() {
 
       // Additional variant validation
       for (const variant of validVariants) {
-        if (!variant.color || variant.color.trim().length === 0) {
+        if (!variant.color?.trim()) {
           toast.error("All variants must have a color selected");
           return;
         }
-        if (!variant.size || variant.size.trim().length === 0) {
+        if (!variant.size?.trim()) {
           toast.error("All variants must have a size selected");
           return;
         }
-        if (!Number.isInteger(variant.stock) || variant.stock <= 0) {
+        if (typeof variant.stock !== 'number' || variant.stock <= 0) {
           toast.error("All variants must have a valid stock quantity (greater than 0)");
           return;
         }
