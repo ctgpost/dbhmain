@@ -34,6 +34,8 @@ import type * as reviews from "../reviews.js";
 import type * as router from "../router.js";
 import type * as sales from "../sales.js";
 import type * as settings from "../settings.js";
+import type * as stockManagement from "../stockManagement.js";
+import type * as stockTransfer from "../stockTransfer.js";
 import type * as userRules from "../userRules.js";
 import type * as whatsappOrders from "../whatsappOrders.js";
 import type * as wishlist from "../wishlist.js";
@@ -68,6 +70,8 @@ declare const fullApi: ApiFromModules<{
   router: typeof router;
   sales: typeof sales;
   settings: typeof settings;
+  stockManagement: typeof stockManagement;
+  stockTransfer: typeof stockTransfer;
   userRules: typeof userRules;
   whatsappOrders: typeof whatsappOrders;
   wishlist: typeof wishlist;

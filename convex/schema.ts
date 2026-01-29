@@ -708,6 +708,56 @@ const applicationTables = {
     .index("by_referrer", ["referrerId"])
     .index("by_code", ["referralCode"])
     .index("by_status", ["status"]),
+
+  // Stock Transfers
+  stockTransfers: defineTable({
+    transferNumber: v.string(),
+    sourceBranchId: v.id("branches"),
+    sourceBranchName: v.string(),
+    destinationBranchId: v.id("branches"),
+    destinationBranchName: v.string(),
+    items: v.array(
+      v.object({
+        productId: v.id("products"),
+        productName: v.string(),
+        quantity: v.number(),
+        unitPrice: v.number(),
+        currentStock: v.number(),
+      })
+    ),
+    status: v.string(), // "pending", "approved", "in_transit", "completed", "cancelled"
+    notes: v.optional(v.string()),
+    requestedBy: v.string(),
+    approvedBy: v.optional(v.string()),
+    receivedBy: v.optional(v.string()),
+    cancelReason: v.optional(v.string()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+    approvedAt: v.optional(v.number()),
+    shippedAt: v.optional(v.number()),
+    completedAt: v.optional(v.number()),
+  })
+    .index("by_source_branch", ["sourceBranchId"])
+    .index("by_destination_branch", ["destinationBranchId"])
+    .index("by_status", ["status"])
+    .index("by_date", ["createdAt"]),
+
+  // Inventory Transactions (Log)
+  inventoryTransactions: defineTable({
+    productId: v.id("products"),
+    productName: v.string(),
+    branchId: v.id("branches"),
+    branchName: v.string(),
+    type: v.string(), // "stock_transfer_out", "stock_transfer_in", "add", "deduct", "adjustment", "sale", "return", "purchase"
+    quantity: v.number(),
+    notes: v.optional(v.string()),
+    referenceId: v.optional(v.string()),
+    createdAt: v.number(),
+  })
+    .index("by_branch", ["branchId"])
+    .index("by_product", ["productId"])
+    .index("by_date", ["createdAt"])
+    .index("by_type", ["type"]),
 };
 
 
