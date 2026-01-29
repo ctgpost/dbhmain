@@ -10,7 +10,6 @@ import CouponManagement from "./CouponManagement";
 
 export function Settings() {
   const [activeTab, setActiveTab] = useState("general");
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
   const [isResetting, setIsResetting] = useState(false);
@@ -61,7 +60,8 @@ export function Settings() {
   const handleLogoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      const maxSize = 5 * 1024 * 1024;
+      // Check file size (max 5MB for original)
+      const maxSize = 5 * 1024 * 1024; // 5MB
       if (file.size > maxSize) {
         toast.error("লোগো সাইজ ৫ MB এর কম হতে হবে");
         return;
@@ -71,6 +71,7 @@ export function Settings() {
       reader.onload = (e) => {
         const result = e.target?.result as string;
         
+        // For images, compress aggressively
         if (file.type.startsWith('image/')) {
           const img = new Image();
           img.onload = () => {
@@ -82,6 +83,7 @@ export function Settings() {
               return;
             }
             
+            // Resize image to max 250x250 with aggressive compression
             const maxDim = 250;
             let width = img.width;
             let height = img.height;
@@ -102,12 +104,15 @@ export function Settings() {
             canvas.height = height;
             ctx.drawImage(img, 0, 0, width, height);
             
+            // Try different compression levels to find the smallest
             let compressedBase64 = canvas.toDataURL('image/jpeg', 0.6);
             
+            // If still too large, try 0.5
             if (compressedBase64.length > 1000000) {
               compressedBase64 = canvas.toDataURL('image/jpeg', 0.5);
             }
             
+            // If still too large, try 0.4
             if (compressedBase64.length > 800000) {
               compressedBase64 = canvas.toDataURL('image/jpeg', 0.4);
             }
@@ -152,6 +157,7 @@ export function Settings() {
       console.log("Save result:", result);
       toast.success("সেটিংস সংরক্ষিত হয়েছে!");
       
+      // Small delay to ensure database is updated
       setTimeout(() => {
         window.location.reload();
       }, 1000);
@@ -179,6 +185,7 @@ export function Settings() {
       setLogoPreview(null);
       toast.success("লোগো মুছে ফেলা হয়েছে!");
       
+      // Small delay to ensure database is updated
       setTimeout(() => {
         window.location.reload();
       }, 1000);
@@ -197,6 +204,7 @@ export function Settings() {
         throw new Error("Data not ready for export");
       }
 
+      // Create and download file
       const blob = new Blob([JSON.stringify(exportAllData, null, 2)], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -234,6 +242,7 @@ export function Settings() {
         throw new Error("Invalid backup file structure");
       }
 
+      // Confirm before importing
       if (!confirm("⚠️ This will replace ALL existing data with the backup data. Are you sure?")) {
         return;
       }
@@ -255,12 +264,14 @@ export function Settings() {
       return;
     }
 
+    // Here you would call a mutation to add the user
     toast.success(`User ${newUser.name} added successfully!`);
     setNewUser({ name: "", email: "", role: "cashier", password: "" });
     setShowAddUser(false);
   };
 
   const clearCache = () => {
+    // Clear browser cache
     if ('caches' in window) {
       caches.keys().then(names => {
         names.forEach(name => {
@@ -269,12 +280,14 @@ export function Settings() {
       });
     }
     
+    // Clear localStorage
     localStorage.clear();
     
     toast.success("Cache cleared successfully!");
   };
 
   const optimizeDatabase = () => {
+    // Simulate database optimization
     toast.success("Database optimized successfully!");
   };
 
@@ -294,6 +307,7 @@ export function Settings() {
       await resetDataMutation({});
       toast.success("Application reset to default state successfully!");
       
+      // Clear browser cache and localStorage as well
       if ('caches' in window) {
         caches.keys().then(names => {
           names.forEach(name => {
@@ -303,6 +317,7 @@ export function Settings() {
       }
       localStorage.clear();
       
+      // Reload the page to reflect changes
       setTimeout(() => {
         window.location.reload();
       }, 2000);
@@ -316,572 +331,610 @@ export function Settings() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50">
-      <div className="flex flex-col lg:flex-row gap-4 sm:gap-6 p-4 sm:p-6 max-w-7xl mx-auto">
-        
-        {/* Mobile Header with Toggle */}
-        <div className="lg:hidden flex items-center justify-between mb-4">
+      <div className="space-y-4 sm:space-y-6 p-4 sm:p-6 max-w-7xl mx-auto">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">⚙️ Settings</h1>
-            <p className="text-xs sm:text-sm text-gray-600 mt-1">Configuration</p>
+            <h1 className="text-3xl sm:text-4xl font-bold text-gray-900">⚙️ Settings</h1>
+            <p className="text-sm text-gray-600 mt-1">DUBAI BORKA HOUSE Configuration</p>
           </div>
-          <button
-            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            className="p-2 bg-white/80 backdrop-blur-sm rounded-xl border border-white/60 hover:bg-white transition-colors"
-          >
-            {isSidebarOpen ? "✕" : "☰"}
-          </button>
         </div>
 
-        {/* Sidebar Navigation */}
-        <div className={`
-          fixed inset-0 bg-black bg-opacity-50 z-40 transition-opacity duration-300
-          ${isSidebarOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}
-          lg:hidden
-        `} onClick={() => setIsSidebarOpen(false)} />
-
-        <div className={`
-          fixed left-0 top-0 bottom-0 w-64 bg-white/80 backdrop-blur-sm border-r border-white/60 z-50 overflow-y-auto
-          transform transition-transform duration-300 lg:static lg:transform-none lg:w-64
-          ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}
-          lg:relative lg:rounded-3xl lg:shadow-sm lg:border
-        `}>
-          {/* Desktop Header in Sidebar */}
-          <div className="hidden lg:block sticky top-0 bg-white/80 backdrop-blur-sm border-b border-white/60 p-6 rounded-t-3xl">
-            <h1 className="text-2xl font-bold text-gray-900">⚙️ Settings</h1>
-            <p className="text-xs text-gray-600 mt-1">Configuration</p>
-          </div>
-
-          {/* Sidebar Navigation Tabs */}
-          <nav className="p-3 sm:p-6 space-y-2">
+        {/* Tab Navigation */}
+        <div className="border-b border-gray-200">
+          <nav className="-mb-px flex space-x-4 sm:space-x-8 overflow-x-auto">
             {tabs.map((tab) => (
               <button
                 key={tab.id}
-                onClick={() => {
-                  setActiveTab(tab.id);
-                  setIsSidebarOpen(false);
-                }}
-                className={`w-full text-left px-4 py-3 rounded-xl font-semibold text-sm transition-all duration-200 flex items-center gap-3 ${
+                onClick={() => setActiveTab(tab.id)}
+                className={`py-3 px-1 border-b-2 font-semibold text-sm whitespace-nowrap transition-colors ${
                   activeTab === tab.id
-                    ? "bg-gradient-to-r from-purple-600 to-purple-700 text-white shadow-lg"
-                    : "text-gray-700 hover:bg-gray-50"
+                    ? "border-purple-500 text-purple-600"
+                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                 }`}
               >
-                <span className="text-lg">{tab.icon}</span>
-                <span>{tab.name}</span>
+                <span className="mr-2">{tab.icon}</span>
+                <span className="hidden sm:inline">{tab.name}</span>
               </button>
             ))}
           </nav>
         </div>
 
-        {/* Main Content Area */}
-        <div className="flex-1 space-y-4 sm:space-y-6">
-          {/* Logo & Title Tab */}
-          {activeTab === "logo" && (
-            <div className="space-y-4 sm:space-y-6">
-              <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-sm border border-white/60 p-4 sm:p-6">
-                <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-6">🎨 লোগো এবং টাইটেল ম্যানেজমেন্ট</h3>
-                
-                <div className="max-w-2xl mx-auto space-y-6">
-                  {/* Logo & Title Display Section */}
-                  <div className="bg-gradient-to-b from-gray-50 to-white border-2 border-gray-200 rounded-lg p-4 sm:p-6 text-center">
-                    <div className="flex flex-col items-center gap-2">
-                      <div 
-                        className="bg-white border-2 border-gray-300 rounded-lg p-3 flex items-center justify-center flex-shrink-0"
-                        style={{ 
-                          width: `${logoSize}px`, 
-                          height: `${logoSize}px`,
-                          minWidth: `${logoSize}px`
-                        }}
-                      >
-                        {logoPreview ? (
-                          <img 
-                            src={logoPreview} 
-                            alt="Logo" 
-                            className="max-w-full max-h-full object-contain"
-                            style={{ width: '100%', height: '100%' }}
-                          />
-                        ) : (
-                          <span className="text-5xl">🏪</span>
-                        )}
-                      </div>
-
-                      <div className="w-full pt-1">
-                        <h2 className="text-lg sm:text-2xl font-bold text-gray-900 leading-tight">
-                          {storeTitle || "স্টোর নাম"}
-                        </h2>
-                        {tagline && (
-                          <p className="text-xs sm:text-sm text-gray-600 italic mt-1">{tagline}</p>
-                        )}
-                      </div>
-                    </div>
+          {/* Tab Content */}
+        {activeTab === "logo" && (
+        <div className="space-y-4 sm:space-y-6">
+          <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-sm border border-white/60 p-6">
+            <h3 className="text-lg font-bold text-gray-900 mb-6">🎨 লোগো এবং টাইটেল ম্যানেজমেন্ট</h3>
+            
+            <div className="max-w-2xl mx-auto">
+              {/* Logo & Title Display Section */}
+              <div className="bg-gradient-to-b from-gray-50 to-white border-2 border-gray-200 rounded-lg p-6 mb-8 text-center">
+                <div className="flex flex-col items-center gap-2">
+                  {/* Logo */}
+                  <div 
+                    className="bg-white border-2 border-gray-300 rounded-lg p-3 flex items-center justify-center flex-shrink-0"
+                    style={{ 
+                      width: `${logoSize}px`, 
+                      height: `${logoSize}px`,
+                      minWidth: `${logoSize}px`
+                    }}
+                  >
+                    {logoPreview ? (
+                      <img 
+                        src={logoPreview} 
+                        alt="Logo" 
+                        className="max-w-full max-h-full object-contain"
+                        style={{ width: '100%', height: '100%' }}
+                      />
+                    ) : (
+                      <span className="text-5xl">🏪</span>
+                    )}
                   </div>
 
-                  {/* Logo Size Slider */}
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                    <label className="block text-xs sm:text-sm font-medium text-gray-900 mb-3">
-                      লোগো সাইজ: {logoSize}px
-                    </label>
-                    <input
-                      type="range"
-                      min="60"
-                      max="200"
-                      value={logoSize}
-                      onChange={(e) => setLogoSize(Number(e.target.value))}
-                      className="w-full h-2 bg-gray-300 rounded-lg appearance-none cursor-pointer"
-                    />
-                    <div className="flex justify-between text-xs text-gray-600 mt-2">
-                      <span>60px</span>
-                      <span>200px</span>
-                    </div>
-                  </div>
-
-                  {/* Logo Upload */}
-                  <div>
-                    <label className="block text-xs sm:text-sm font-medium text-gray-900 mb-3">
-                      লোগো আপলোড করুন
-                    </label>
-                    <div className="border-2 border-dashed border-purple-300 rounded-lg p-6 text-center bg-purple-50 hover:bg-purple-100 transition cursor-pointer">
-                      <label className="cursor-pointer block">
-                        <input
-                          type="file"
-                          accept="image/png,image/jpeg,image/jpg,image/svg+xml"
-                          onChange={handleLogoUpload}
-                          className="hidden"
-                        />
-                        <div className="space-y-2">
-                          <div className="text-4xl">📤</div>
-                          <p className="text-sm sm:text-base text-gray-900 font-medium">লোগো ছবি নির্বাচন করুন</p>
-                          <p className="text-xs text-gray-600">PNG, JPG বা SVG ফরম্যাট</p>
-                        </div>
-                      </label>
-                    </div>
-                  </div>
-
-                  {/* Store Title */}
-                  <div>
-                    <label className="block text-xs sm:text-sm font-medium text-gray-900 mb-2">
-                      স্টোর টাইটেল *
-                    </label>
-                    <input
-                      type="text"
-                      value={storeTitle}
-                      onChange={(e) => setStoreTitle(e.target.value)}
-                      className="w-full px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-base"
-                      placeholder="স্টোর নাম"
-                    />
-                  </div>
-
-                  {/* Tagline */}
-                  <div>
-                    <label className="block text-xs sm:text-sm font-medium text-gray-900 mb-2">
-                      ট্যাগলাইন
-                    </label>
-                    <input
-                      type="text"
-                      value={tagline}
-                      onChange={(e) => setTagline(e.target.value)}
-                      className="w-full px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-base"
-                      placeholder="স্লোগান"
-                      maxLength={100}
-                    />
-                  </div>
-
-                  {/* Save Buttons */}
-                  <div className="flex flex-col sm:flex-row gap-2 pt-4">
-                    <button
-                      onClick={handleSaveLogo}
-                      disabled={isSavingLogo}
-                      className="flex-1 px-4 py-2 sm:py-3 bg-purple-600 hover:bg-purple-700 disabled:bg-purple-400 text-white rounded-lg font-medium text-sm transition-colors"
-                    >
-                      {isSavingLogo ? "সংরক্ষণ করছে..." : "💾 সংরক্ষণ করুন"}
-                    </button>
-                    {logoPreview && (
-                      <button
-                        onClick={handleDeleteLogo}
-                        disabled={isSavingLogo}
-                        className="flex-1 px-4 py-2 sm:py-3 bg-red-600 hover:bg-red-700 disabled:bg-red-400 text-white rounded-lg font-medium text-sm transition-colors"
-                      >
-                        🗑️ লোগো মুছুন
-                      </button>
+                  {/* Title & Tagline */}
+                  <div className="w-full pt-1">
+                    <h2 className="text-2xl font-bold text-gray-900 leading-tight">
+                      {storeTitle || "স্টোর নাম"}
+                    </h2>
+                    {tagline && (
+                      <p className="text-sm text-gray-600 italic mt-1">{tagline}</p>
                     )}
                   </div>
                 </div>
               </div>
-            </div>
-          )}
 
-          {/* Branches Tab */}
-          {activeTab === "branches" && <BranchManagement />}
-
-          {/* Loyalty Tab */}
-          {activeTab === "loyalty" && <CustomerLoyalty />}
-
-          {/* Coupons Tab */}
-          {activeTab === "coupons" && <CouponManagement />}
-
-          {/* Print Test Tab */}
-          {activeTab === "print" && <PrintTest />}
-
-          {/* User Rules Tab */}
-          {activeTab === "userRules" && <RuleBasedUserManagement />}
-
-          {/* Backup & Restore Tab */}
-          {activeTab === "backup" && (
-            <div className="space-y-4 sm:space-y-6">
-              <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-sm border border-white/60 p-4 sm:p-6">
-                <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-6">💾 ডেটা ব্যাকআপ এবং পুনরুদ্ধার</h3>
-                
-                <div className="space-y-4 sm:space-y-6">
-                  {/* Export Section */}
-                  <div className="border border-blue-200 rounded-lg p-4 bg-blue-50">
-                    <h4 className="text-sm sm:text-base font-semibold text-gray-900 mb-4">📤 ডেটা এক্সপোর্ট করুন</h4>
-                    <button
-                      onClick={exportData}
-                      disabled={isExporting}
-                      className="w-full px-4 py-2 sm:py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white rounded-lg font-medium text-sm transition-colors"
-                    >
-                      {isExporting ? "এক্সপোর্ট করছে..." : "📥 সম্পূর্ণ ডেটা এক্সপোর্ট করুন"}
-                    </button>
-                  </div>
-
-                  {/* Import Section */}
-                  <div className="border border-green-200 rounded-lg p-4 bg-green-50">
-                    <h4 className="text-sm sm:text-base font-semibold text-gray-900 mb-4">📥 ডেটা ইমপোর্ট করুন</h4>
-                    <label className="block">
-                      <input
-                        type="file"
-                        accept=".json"
-                        onChange={handleFileImport}
-                        disabled={isImporting}
-                        className="hidden"
-                      />
-                      <button
-                        onClick={(e) => (e.currentTarget.parentElement?.querySelector('input') as any)?.click()}
-                        disabled={isImporting}
-                        className="w-full px-4 py-2 sm:py-3 bg-green-600 hover:bg-green-700 disabled:bg-green-400 text-white rounded-lg font-medium text-sm transition-colors"
-                      >
-                        {isImporting ? "ইমপোর্ট করছে..." : "📤 JSON ফাইল আপলোড করুন"}
-                      </button>
-                    </label>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* System Tab */}
-          {activeTab === "system" && (
-            <div className="space-y-4 sm:space-y-6">
-              <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-sm border border-white/60 p-4 sm:p-6">
-                <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-6">🖥️ সিস্টেম তথ্য</h3>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-                  <div>
-                    <h4 className="font-medium text-gray-900 mb-3 text-sm">অ্যাপ্লিকেশন তথ্য</h4>
-                    <div className="space-y-2 text-xs sm:text-sm">
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">সংস্করণ:</span>
-                        <span className="font-medium">1.0.0</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">বিল্ড:</span>
-                        <span className="font-medium">2024.01.15</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">পরিবেশ:</span>
-                        <span className="font-medium">উৎপাদন</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div>
-                    <h4 className="font-medium text-gray-900 mb-3 text-sm">ডেটাবেস তথ্য</h4>
-                    <div className="space-y-2 text-xs sm:text-sm">
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">স্থিতি:</span>
-                        <span className="font-medium text-green-600">সংযুক্ত</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">শেষ ব্যাকআপ:</span>
-                        <span className="font-medium">আজ, 3:00 AM</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">স্টোরেজ ব্যবহৃত:</span>
-                        <span className="font-medium">2.4 MB</span>
-                      </div>
-                    </div>
-                  </div>
+              {/* Logo Size Slider */}
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                <label className="block text-sm font-medium text-gray-900 mb-3">
+                  লোগো সাইজ: {logoSize}px
+                </label>
+                <input
+                  type="range"
+                  min="60"
+                  max="200"
+                  value={logoSize}
+                  onChange={(e) => setLogoSize(Number(e.target.value))}
+                  className="w-full h-2 bg-gray-300 rounded-lg appearance-none cursor-pointer"
+                />
+                <div className="flex justify-between text-xs text-gray-600 mt-2">
+                  <span>60px (ছোট)</span>
+                  <span>200px (বড়)</span>
                 </div>
               </div>
 
-              <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-sm border border-white/60 p-4 sm:p-6">
-                <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-6">🛠️ সিস্টেম রক্ষণাবেক্ষণ</h3>
-                
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-                  {/* Clear Cache Card */}
-                  <div className="border border-gray-200 rounded-lg p-3 sm:p-4 bg-gray-50 hover:shadow-md transition-shadow">
-                    <div className="mb-4">
-                      <h4 className="font-semibold text-gray-900 text-sm">🧹 ক্যাশ পরিষ্কার করুন</h4>
-                      <p className="text-xs text-gray-600 mt-2">পারফরম্যান্স উন্নত করতে ক্যাশ সাফ করুন</p>
-                    </div>
-                    <button
-                      onClick={clearCache}
-                      className="w-full px-3 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg font-medium text-xs sm:text-sm transition-colors"
-                    >
-                      পরিষ্কার করুন
-                    </button>
-                  </div>
-
-                  {/* Optimize Database Card */}
-                  <div className="border border-blue-200 rounded-lg p-3 sm:p-4 bg-blue-50 hover:shadow-md transition-shadow">
-                    <div className="mb-4">
-                      <h4 className="font-semibold text-blue-900 text-sm">⚙️ ডাটাবেস অপ্টিমাইজ করুন</h4>
-                      <p className="text-xs text-blue-700 mt-2">ডেটাবেস কর্মক্ষমতা উন্নত করুন</p>
-                    </div>
-                    <button
-                      onClick={optimizeDatabase}
-                      className="w-full px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium text-xs sm:text-sm transition-colors"
-                    >
-                      অপ্টিমাইজ করুন
-                    </button>
-                  </div>
-
-                  {/* Reset Application Card */}
-                  <div className="border border-red-200 rounded-lg p-3 sm:p-4 bg-red-50 hover:shadow-md transition-shadow">
-                    <div className="mb-4">
-                      <h4 className="font-semibold text-red-900 text-sm">🔄 রিসেট করুন</h4>
-                      <p className="text-xs text-red-700 mt-2">⚠️ সমস্ত ডেটা স্থায়ীভাবে মুছুন</p>
-                    </div>
-                    <button
-                      onClick={resetApplication}
-                      disabled={isResetting}
-                      className="w-full px-3 py-2 bg-red-600 hover:bg-red-700 disabled:bg-red-400 text-white rounded-lg font-medium text-xs sm:text-sm transition-colors"
-                    >
-                      {isResetting ? "রিসেট করছে..." : "রিসেট করুন"}
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              {/* Performance Metrics */}
-              <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-sm border border-white/60 p-4 sm:p-6">
-                <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-6">📊 পারফরম্যান্স মেট্রিক্স</h3>
-                
-                <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
-                  <div className="p-3 sm:p-4 bg-blue-50 rounded-lg border border-blue-200 hover:shadow-md transition-shadow">
-                    <div className="text-lg sm:text-2xl font-bold text-blue-600 mb-1">99.9%</div>
-                    <div className="text-xs sm:text-sm text-blue-800 font-medium">আপটাইম</div>
-                    <p className="text-xs text-blue-600 mt-1">গত ৩০ দিন</p>
-                  </div>
-                  <div className="p-3 sm:p-4 bg-green-50 rounded-lg border border-green-200 hover:shadow-md transition-shadow">
-                    <div className="text-lg sm:text-2xl font-bold text-green-600 mb-1">1.2s</div>
-                    <div className="text-xs sm:text-sm text-green-800 font-medium">গড় প্রতিক্রিয়া</div>
-                    <p className="text-xs text-green-600 mt-1">API বিলম্ব</p>
-                  </div>
-                  <div className="p-3 sm:p-4 bg-purple-50 rounded-lg border border-purple-200 hover:shadow-md transition-shadow">
-                    <div className="text-lg sm:text-2xl font-bold text-purple-600 mb-1">2.4MB</div>
-                    <div className="text-xs sm:text-sm text-purple-800 font-medium">স্টোরেজ ব্যবহৃত</div>
-                    <p className="text-xs text-purple-600 mt-1">ক্যাশ সাইজ</p>
-                  </div>
-                  <div className="p-3 sm:p-4 bg-orange-50 rounded-lg border border-orange-200 hover:shadow-md transition-shadow">
-                    <div className="text-lg sm:text-2xl font-bold text-orange-600 mb-1">1,234</div>
-                    <div className="text-xs sm:text-sm text-orange-800 font-medium">মোট রেকর্ড</div>
-                    <p className="text-xs text-orange-600 mt-1">ডেটাবেস সাইজ</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* General Tab (Default) */}
-          {activeTab === "general" && (
-            <div className="space-y-4 sm:space-y-6">
-              <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-sm border border-white/60 p-4 sm:p-6">
-                <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-6">⚙️ সাধারণ সেটিংস</h3>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-                  <div>
-                    <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
-                      মুদ্রা চিহ্ন
-                    </label>
+              {/* Logo Upload */}
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-gray-900 mb-3">
+                  লোগো আপলোড করুন
+                </label>
+                <div className="border-2 border-dashed border-purple-300 rounded-lg p-6 text-center bg-purple-50 hover:bg-purple-100 transition cursor-pointer">
+                  <label className="cursor-pointer block">
                     <input
-                      type="text"
-                      value="৳"
-                      readOnly
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50"
+                      type="file"
+                      accept="image/png,image/jpeg,image/jpg,image/svg+xml"
+                      onChange={handleLogoUpload}
+                      className="hidden"
                     />
-                  </div>
-                  
-                  <div>
-                    <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
-                      তারিখ ফরম্যাট
-                    </label>
-                    <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500">
-                      <option>DD/MM/YYYY</option>
-                      <option>MM/DD/YYYY</option>
-                      <option>YYYY-MM-DD</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
-                      টাইম জোন
-                    </label>
-                    <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500">
-                      <option>Asia/Dhaka (GMT+6)</option>
-                      <option>Asia/Dubai (GMT+4)</option>
-                      <option>UTC (GMT+0)</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
-                      ভাষা
-                    </label>
-                    <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500">
-                      <option>English</option>
-                      <option>বাংলা (Bengali)</option>
-                      <option>العربية (Arabic)</option>
-                    </select>
-                  </div>
+                    <div className="space-y-2">
+                      <div className="text-4xl">📤</div>
+                      <p className="text-gray-900 font-medium">লোগো ছবি নির্বাচন করুন</p>
+                      <p className="text-xs text-gray-600">PNG, JPG বা SVG ফরম্যাট। সর্বোচ্চ ২ MB</p>
+                    </div>
+                  </label>
                 </div>
+              </div>
 
-                <div className="mt-6 pt-6 border-t border-gray-200">
-                  <button className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 font-medium text-sm">
-                    সংরক্ষণ করুন
-                  </button>
+              {/* Store Title */}
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-gray-900 mb-2">
+                  স্টোর টাইটেল *
+                </label>
+                <input
+                  type="text"
+                  value={storeTitle}
+                  onChange={(e) => setStoreTitle(e.target.value)}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-lg"
+                  placeholder="আপনার স্টোরের নাম লিখুন"
+                />
+                <p className="text-xs text-gray-600 mt-1">✓ সব পৃষ্ঠায় এবং ডকুমেন্টে প্রদর্শিত হবে</p>
+              </div>
+
+              {/* Tagline */}
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-gray-900 mb-2">
+                  ট্যাগলাইন (ঐচ্ছিক)
+                </label>
+                <input
+                  type="text"
+                  value={tagline}
+                  onChange={(e) => setTagline(e.target.value)}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  placeholder="স্টোর স্লোগান বা বর্ণনা"
+                  maxLength={100}
+                />
+                <p className="text-xs text-gray-600 mt-1">{tagline.length}/100 অক্ষর</p>
+              </div>
+
+              {/* Save & Delete Buttons */}
+              <div className="flex gap-3">
+                <button
+                  onClick={handleSaveLogo}
+                  disabled={isSavingLogo}
+                  className="flex-1 px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 font-semibold disabled:bg-gray-400 transition flex items-center justify-center gap-2"
+                >
+                  {isSavingLogo ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                      সংরক্ষণ করছি...
+                    </>
+                  ) : (
+                    <>
+                      ✅ সংরক্ষণ করুন
+                    </>
+                  )}
+                </button>
+                <button
+                  onClick={handleDeleteLogo}
+                  disabled={isSavingLogo || !logoPreview}
+                  className="flex-1 px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed transition"
+                >
+                  🗑️ লোগো মুছুন
+                </button>
+              </div>
+
+              {/* Info Box */}
+              <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+                <p className="text-sm text-green-800">
+                  <strong>💡 টিপস:</strong> লোগো সাইজ স্লাইডার দিয়ে বড় বা ছোট করুন, তারপর সংরক্ষণ করুন।
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {activeTab === "general" && (
+        <div className="space-y-4 sm:space-y-6">
+          <div className="bg-white rounded-lg shadow p-4 sm:p-6 border border-gray-200">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">General Settings</h3>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Currency Symbol
+                </label>
+                <input
+                  type="text"
+                  value="৳"
+                  readOnly
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Date Format
+                </label>
+                <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500">
+                  <option>DD/MM/YYYY</option>
+                  <option>MM/DD/YYYY</option>
+                  <option>YYYY-MM-DD</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Time Zone
+                </label>
+                <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500">
+                  <option>Asia/Dhaka (GMT+6)</option>
+                  <option>Asia/Dubai (GMT+4)</option>
+                  <option>UTC (GMT+0)</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Language
+                </label>
+                <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500">
+                  <option>English</option>
+                  <option>বাংলা (Bengali)</option>
+                  <option>العربية (Arabic)</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="mt-6 pt-6 border-t border-gray-200">
+              <button className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 font-medium">
+                Save General Settings
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {activeTab === "store" && (
+        <div className="space-y-4 sm:space-y-6">
+          <div className="bg-white rounded-lg shadow p-4 sm:p-6 border border-gray-200">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Store Information</h3>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Store Name
+                </label>
+                <input
+                  type="text"
+                  value="DUBAI BORKA HOUSE"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Phone Number
+                  </label>
+                  <input
+                    type="tel"
+                    placeholder="+880 1XXX-XXXXXX"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Email
+                  </label>
+                  <input
+                    type="email"
+                    placeholder="info@raisadubai.com"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Address
+                </label>
+                <textarea
+                  rows={3}
+                  placeholder="Store address..."
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Tax ID / Trade License
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Tax identification number"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Website
+                  </label>
+                  <input
+                    type="url"
+                    placeholder="https://www.raisadubai.com"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                  />
                 </div>
               </div>
             </div>
-          )}
 
-          {/* Store Info Tab */}
-          {activeTab === "store" && (
-            <div className="space-y-4 sm:space-y-6">
-              <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-sm border border-white/60 p-4 sm:p-6">
-                <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-6">🏪 স্টোর তথ্য</h3>
-                
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
-                      স্টোর নাম
-                    </label>
-                    <input
-                      type="text"
-                      value="DUBAI BORKA HOUSE"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
-                    />
-                  </div>
+            <div className="mt-6 pt-6 border-t border-gray-200">
+              <button className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 font-medium">
+                Save Store Information
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
-                        ফোন নম্বর
-                      </label>
-                      <input
-                        type="tel"
-                        placeholder="+880 1XXX-XXXXXX"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
-                      />
-                    </div>
-                    
-                    <div>
-                      <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
-                        ইমেইল
-                      </label>
-                      <input
-                        type="email"
-                        placeholder="info@borkahouse.com"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
-                      />
-                    </div>
-                  </div>
+      {activeTab === "print" && (
+        <div className="space-y-4 sm:space-y-6">
+          <PrintTest />
+        </div>
+      )}
 
-                  <div>
-                    <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
-                      ঠিকানা
-                    </label>
-                    <textarea
-                      rows={3}
-                      placeholder="স্টোর ঠিকানা..."
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
-                        ট্যাক্স আইডি
-                      </label>
-                      <input
-                        type="text"
-                        placeholder="ট্যাক্স নম্বর"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
-                      />
-                    </div>
-                    
-                    <div>
-                      <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
-                        ওয়েবসাইট
-                      </label>
-                      <input
-                        type="url"
-                        placeholder="https://www.borkahouse.com"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
-                      />
-                    </div>
-                  </div>
+      {activeTab === "backup" && (
+        <div className="space-y-4 sm:space-y-6">
+          <div className="bg-white rounded-lg shadow p-4 sm:p-6 border border-gray-200">
+            <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-6">Backup & Restore</h3>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 md:gap-6 mb-6">
+              {/* Export Data Card */}
+              <div className="border border-gray-200 rounded-lg p-3 sm:p-4 md:p-6 hover:shadow-md transition-shadow">
+                <div className="flex items-start gap-3 mb-4">
+                  <span className="text-xl sm:text-2xl flex-shrink-0">📤</span>
+                  <h4 className="font-semibold text-gray-900 text-sm sm:text-base">Export Data</h4>
                 </div>
+                <p className="text-xs sm:text-sm text-gray-600 mb-4 line-clamp-3">
+                  Download a complete backup of your store data including products, sales, and customers.
+                </p>
+                <button
+                  onClick={exportData}
+                  disabled={isExporting || !exportAllData}
+                  className="w-full px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 font-medium text-xs sm:text-sm transition-colors"
+                >
+                  {isExporting ? (
+                    <div className="flex items-center justify-center gap-2">
+                      <div className="animate-spin rounded-full h-3 w-3 sm:h-4 sm:w-4 border-b-2 border-white"></div>
+                      <span>Exporting...</span>
+                    </div>
+                  ) : (
+                    "📥 Export All Data"
+                  )}
+                </button>
+              </div>
 
-                <div className="mt-6 pt-6 border-t border-gray-200">
-                  <button className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 font-medium text-sm">
-                    সংরক্ষণ করুন
-                  </button>
+              {/* Import Data Card */}
+              <div className="border border-gray-200 rounded-lg p-3 sm:p-4 md:p-6 hover:shadow-md transition-shadow">
+                <div className="flex items-start gap-3 mb-4">
+                  <span className="text-xl sm:text-2xl flex-shrink-0">📥</span>
+                  <h4 className="font-semibold text-gray-900 text-sm sm:text-base">Import Data</h4>
                 </div>
+                <p className="text-xs sm:text-sm text-gray-600 mb-4 line-clamp-3">
+                  Restore your store data from a previously exported backup file.
+                </p>
+                <input
+                  type="file"
+                  accept=".json"
+                  onChange={handleFileImport}
+                  disabled={isImporting}
+                  className="w-full px-2 sm:px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 file:mr-2 sm:file:mr-4 file:py-1 sm:file:py-2 file:px-2 sm:file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-medium file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100"
+                />
+                {isImporting && (
+                  <div className="mt-2 flex items-center text-xs sm:text-sm text-gray-600 gap-2">
+                    <div className="animate-spin rounded-full h-3 w-3 sm:h-4 sm:w-4 border-b-2 border-purple-600 flex-shrink-0"></div>
+                    <span>Importing data...</span>
+                  </div>
+                )}
               </div>
             </div>
-          )}
 
-          {/* User Management Tab */}
-          {activeTab === "users" && (
-            <div className="space-y-4 sm:space-y-6">
-              <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-sm border border-white/60 p-4 sm:p-6">
-                <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-6">👥 ব্যবহারকারী ব্যবস্থাপনা</h3>
-                
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                  <div className="flex items-start gap-3">
-                    <span className="text-blue-600 text-lg sm:text-xl flex-shrink-0">ℹ️</span>
-                    <div className="flex-1">
-                      <h4 className="font-semibold text-blue-900 mb-2 text-sm sm:text-base">কর্মচারী ব্যবস্থাপনা</h4>
-                      <p className="text-xs sm:text-sm text-blue-800 mb-4">
-                        ব্যবহারকারী এবং কর্মচারী ব্যবস্থাপনা ড্যাশবোর্ড থেকে করা হয়। নতুন ব্যবহারকারী যোগ করতে:
-                      </p>
-                      <ol className="text-xs sm:text-sm text-blue-800 space-y-2 mb-4">
-                        <li>1. <strong>ড্যাশবোর্ড</strong> → <strong>কর্মচারী ব্যবস্থাপনা</strong> যান</li>
-                        <li>2. <strong>"+ কর্মচারী যোগ করুন"</strong> ক্লিক করুন</li>
-                        <li>3. প্রয়োজনীয় তথ্য পূরণ করুন</li>
-                        <li>4. শাখা নির্বাচন করুন</li>
-                        <li>5. অনুমতি সেট করুন এবং সংরক্ষণ করুন</li>
-                      </ol>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="mt-6 p-4 bg-gray-50 border border-gray-200 rounded-lg">
-                  <h4 className="font-medium text-gray-900 mb-3 text-sm">বৈশিষ্ট্যসমূহ:</h4>
-                  <ul className="text-xs sm:text-sm text-gray-700 space-y-2">
-                    <li>✓ কর্মচারী তৈরি এবং পরিচালনা</li>
-                    <li>✓ অবস্থান এবং অনুমতি নির্ধারণ</li>
-                    <li>✓ কর্মক্ষমতা ট্র্যাকিং</li>
-                    <li>✓ কমিশন এবং বেতন পরিচালনা</li>
-                    <li>✓ জরুরি যোগাযোগ তথ্য</li>
-                    <li>✓ ব্যবহারকারী সক্রিয় করুন বা নিষ্ক্রিয় করুন</li>
+            <div className="p-3 sm:p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+              <div className="flex flex-col sm:flex-row sm:items-start gap-2 sm:gap-3">
+                <span className="text-yellow-600 text-lg sm:text-xl flex-shrink-0 pt-0.5">⚠️</span>
+                <div className="flex-1 min-w-0">
+                  <h4 className="font-medium text-yellow-800 text-sm sm:text-base">Important Notes:</h4>
+                  <ul className="text-xs sm:text-sm text-yellow-700 mt-2 space-y-1">
+                    <li>• Always backup your data before importing</li>
+                    <li>• Import will overwrite existing data</li>
+                    <li>• Only import files from DUBAI BORKA HOUSE</li>
+                    <li>• Contact support if you encounter issues</li>
                   </ul>
                 </div>
               </div>
             </div>
-          )}
+          </div>
         </div>
+      )}
+
+      {activeTab === "users" && (
+        <div className="space-y-4 sm:space-y-6">
+          <div className="bg-white rounded-lg shadow p-4 sm:p-6 border border-gray-200">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">👥 User Management</h3>
+            
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 sm:p-6">
+              <div className="flex items-start">
+                <span className="text-blue-600 mr-3 text-xl">ℹ️</span>
+                <div>
+                  <h4 className="font-semibold text-blue-900 mb-2">Employee Management</h4>
+                  <p className="text-sm text-blue-800 mb-4">
+                    User and employee management is handled through the Employee Management section in the dashboard. To add, edit, or manage users:
+                  </p>
+                  <ol className="text-sm text-blue-800 space-y-2 mb-4">
+                    <li>1. Go to <strong>Dashboard</strong> → <strong>Employee Management</strong></li>
+                    <li>2. Click <strong>"+ Add New Employee"</strong> to create a new user</li>
+                    <li>3. Fill in the required information (name, email, phone, position)</li>
+                    <li>4. Select the branch where the employee will work</li>
+                    <li>5. Set permissions and other details</li>
+                    <li>6. Click <strong>"Save"</strong> to create the user</li>
+                  </ol>
+                  <p className="text-sm text-blue-800 font-medium">
+                    Each employee needs to be assigned to a branch before they can access the system.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-6 p-4 bg-gray-50 border border-gray-200 rounded-lg">
+              <h4 className="font-medium text-gray-900 mb-3">Features:</h4>
+              <ul className="text-sm text-gray-700 space-y-2">
+                <li>✓ Create and manage employees/users</li>
+                <li>✓ Assign positions and permissions</li>
+                <li>✓ Track employee performance</li>
+                <li>✓ Manage commissions and salaries</li>
+                <li>✓ Set emergency contact information</li>
+                <li>✓ Activate or deactivate users</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {activeTab === "branches" && (
+        <BranchManagement />
+      )}
+
+      {activeTab === "userRules" && (
+        <div className="space-y-4 sm:space-y-6">
+          <div className="bg-white rounded-lg shadow p-4 sm:p-6 border border-gray-200">
+            <RuleBasedUserManagement />
+          </div>
+        </div>
+      )}
+
+      {activeTab === "loyalty" && (
+        <div>
+          <CustomerLoyalty />
+        </div>
+      )}
+
+      {activeTab === "coupons" && (
+        <div>
+          <CouponManagement />
+        </div>
+      )}
+
+      {activeTab === "system" && (
+        <div className="space-y-4 sm:space-y-6">
+          <div className="bg-white rounded-lg shadow p-4 sm:p-6 border border-gray-200">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">System Information</h3>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+              <div>
+                <h4 className="font-medium text-gray-900 mb-3">Application Info</h4>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Version:</span>
+                    <span className="font-medium">1.0.0</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Build:</span>
+                    <span className="font-medium">2024.01.15</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Environment:</span>
+                    <span className="font-medium">Production</span>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <h4 className="font-medium text-gray-900 mb-3">Database Info</h4>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Status:</span>
+                    <span className="font-medium text-green-600">Connected</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Last Backup:</span>
+                    <span className="font-medium">Today, 3:00 AM</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Storage Used:</span>
+                    <span className="font-medium">2.4 MB</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-lg shadow p-4 sm:p-6 border border-gray-200">
+            <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-6">System Maintenance</h3>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-6">
+              {/* Clear Cache Card */}
+              <div className="border border-gray-200 rounded-lg p-3 sm:p-4 md:p-6 hover:shadow-md transition-shadow">
+                <div className="mb-4">
+                  <h4 className="font-semibold text-gray-900 text-sm sm:text-base">🧹 Clear Cache</h4>
+                  <p className="text-xs sm:text-sm text-gray-600 mt-2 line-clamp-2">Clear application cache to improve performance and free up memory</p>
+                </div>
+                <button
+                  onClick={clearCache}
+                  className="w-full px-3 sm:px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg font-medium text-xs sm:text-sm transition-colors"
+                >
+                  Clear Cache
+                </button>
+              </div>
+
+              {/* Optimize Database Card */}
+              <div className="border border-blue-200 rounded-lg p-3 sm:p-4 md:p-6 bg-blue-50 hover:shadow-md transition-shadow">
+                <div className="mb-4">
+                  <h4 className="font-semibold text-blue-900 text-sm sm:text-base">⚙️ Optimize Database</h4>
+                  <p className="text-xs sm:text-sm text-blue-700 mt-2 line-clamp-2">Optimize database for better query performance and efficiency</p>
+                </div>
+                <button
+                  onClick={optimizeDatabase}
+                  className="w-full px-3 sm:px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium text-xs sm:text-sm transition-colors"
+                >
+                  Optimize
+                </button>
+              </div>
+
+              {/* Reset Application Card */}
+              <div className="border border-red-200 rounded-lg p-3 sm:p-4 md:p-6 bg-red-50 hover:shadow-md transition-shadow">
+                <div className="mb-4">
+                  <h4 className="font-semibold text-red-900 text-sm sm:text-base">🔄 Reset to Default</h4>
+                  <p className="text-xs sm:text-sm text-red-700 mt-2 line-clamp-2">⚠️ Permanently delete all data and restore defaults</p>
+                </div>
+                <button
+                  onClick={resetApplication}
+                  disabled={isResetting}
+                  className="w-full px-3 sm:px-4 py-2 bg-red-600 hover:bg-red-700 disabled:bg-red-400 text-white rounded-lg font-medium text-xs sm:text-sm transition-colors"
+                >
+                  {isResetting ? (
+                    <div className="flex items-center justify-center gap-2">
+                      <div className="animate-spin rounded-full h-3 w-3 sm:h-4 sm:w-4 border-b-2 border-white"></div>
+                      <span>Resetting...</span>
+                    </div>
+                  ) : (
+                    "Reset Application"
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Performance Metrics */}
+          <div className="bg-white rounded-lg shadow p-4 sm:p-6 border border-gray-200">
+            <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-6">Performance Metrics</h3>
+            
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 md:gap-6">
+              <div className="p-3 sm:p-4 md:p-6 bg-blue-50 rounded-lg border border-blue-200 hover:shadow-md transition-shadow">
+                <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-blue-600 mb-1">99.9%</div>
+                <div className="text-xs sm:text-sm text-blue-800 font-medium">Uptime</div>
+                <p className="text-xs text-blue-600 mt-1">Last 30 days</p>
+              </div>
+              <div className="p-3 sm:p-4 md:p-6 bg-green-50 rounded-lg border border-green-200 hover:shadow-md transition-shadow">
+                <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-green-600 mb-1">1.2s</div>
+                <div className="text-xs sm:text-sm text-green-800 font-medium">Avg Response</div>
+                <p className="text-xs text-green-600 mt-1">API latency</p>
+              </div>
+              <div className="p-3 sm:p-4 md:p-6 bg-purple-50 rounded-lg border border-purple-200 hover:shadow-md transition-shadow">
+                <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-purple-600 mb-1">2.4MB</div>
+                <div className="text-xs sm:text-sm text-purple-800 font-medium">Storage Used</div>
+                <p className="text-xs text-purple-600 mt-1">Cache size</p>
+              </div>
+              <div className="p-3 sm:p-4 md:p-6 bg-orange-50 rounded-lg border border-orange-200 hover:shadow-md transition-shadow">
+                <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-orange-600 mb-1">1,234</div>
+                <div className="text-xs sm:text-sm text-orange-800 font-medium">Total Records</div>
+                <p className="text-xs text-orange-600 mt-1">Database size</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
       </div>
     </div>
   );
