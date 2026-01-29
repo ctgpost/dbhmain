@@ -96,8 +96,10 @@ export default function App() {
     { id: "dashboard", name: "Dashboard", icon: "📊" },
     { id: "pos", name: "POS", icon: "🏷️" },
     { id: "inventory", name: "Inventory", icon: "📦" },
-    { id: "categories", name: "Categories", icon: "📂" },    { id: "stock-management", name: "Stock Mgmt", icon: "🏭" },
-    { id: "stock-transfer", name: "Stock Transfer", icon: "🔄" },    { id: "sales", name: "Sales", icon: "💰" },
+    { id: "categories", name: "Categories", icon: "📂" },
+    { id: "stock-management", name: "Stock Mgmt", icon: "🏭" },
+    { id: "stock-transfer", name: "Stock Transfer", icon: "🔄" },
+    { id: "sales", name: "Sales", icon: "💰" },
     { id: "customers", name: "Customers", icon: "👥" },
     { id: "employees", name: "Employees", icon: "👔" },
     { id: "discounts", name: "Discounts", icon: "🎁" },
@@ -204,10 +206,10 @@ export default function App() {
             )}
           </div>
 
-          <div className="flex">
-            {/* Desktop Sidebar */}
-            <div className="hidden lg:flex lg:flex-col lg:w-64 lg:fixed lg:inset-y-0 lg:bg-white lg:border-r lg:border-gray-200">
-              <div className="flex flex-col flex-grow pt-5 pb-4 overflow-y-auto">
+          <div className="flex h-screen">
+            {/* Desktop Sidebar - Fixed */}
+            <div className="hidden lg:flex lg:flex-col lg:w-64 lg:fixed lg:inset-y-0 lg:bg-white lg:border-r lg:border-gray-200 lg:shadow-sm">
+              <div className="flex flex-col flex-grow py-4 overflow-y-auto">
                 <div className="flex items-center justify-center flex-shrink-0 px-4 mb-8">
                   {storeSettings?.logo ? (
                     <img src={storeSettings.logo} alt="Logo" className="h-16 w-16 object-contain flex-shrink-0" />
@@ -231,15 +233,15 @@ export default function App() {
                     </button>
                   ))}
                 </nav>
-                <div className="flex-shrink-0 flex border-t border-gray-200 p-4">
+                <div className="flex-shrink-0 border-t border-gray-200 p-4">
                   <SignOutButton />
                 </div>
               </div>
             </div>
 
             {/* Main Content */}
-            <div className="lg:pl-64 flex flex-col flex-1">
-              <main className="flex-1">
+            <div className="lg:pl-64 flex flex-col flex-1 overflow-hidden">
+              <main className="flex-1 overflow-auto">
                 <div className="py-4 px-4 sm:px-6 lg:px-8">
                   {renderContent()}
                 </div>

@@ -54,36 +54,40 @@ export function Dashboard() {
     .slice(0, 5);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50">
-      <div className="space-y-6 p-4 sm:p-6 max-w-7xl mx-auto">
-        {/* Header with Logo and Title - iOS Style */}
-        <div className="pt-4 pb-2">
-          <div className="flex items-center gap-4 mb-6">
+    <div className="flex flex-col h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50">
+      {/* Fixed Header */}
+      <div className="fixed top-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-sm border-b border-gray-200/50 shadow-sm">
+        <div className="p-4 sm:p-6 max-w-7xl mx-auto">
+          <div className="flex items-center gap-4 mb-3">
             <div className="flex-shrink-0">
               {storeSettings?.logo ? (
                 <img 
                   src={storeSettings.logo} 
                   alt="Store Logo" 
-                  className="h-16 w-16 sm:h-20 sm:w-20 object-contain filter drop-shadow-md hover:drop-shadow-lg transition-all duration-300"
+                  className="h-14 w-14 sm:h-16 sm:w-16 object-contain filter drop-shadow-md"
                 />
               ) : (
-                <div className="text-5xl sm:text-6xl">🏪</div>
+                <div className="text-4xl sm:text-5xl">🏪</div>
               )}
             </div>
             <div className="flex-1">
-              <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 tracking-tight bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
                 {storeSettings?.storeTitle || "DUBAI BORKA HOUSE"}
               </h1>
               {storeSettings?.tagline && (
-                <p className="text-sm text-gray-500 font-medium mt-1">{storeSettings.tagline}</p>
+                <p className="text-xs text-gray-500 font-medium mt-0.5">{storeSettings.tagline}</p>
               )}
             </div>
           </div>
           <div className="text-xs text-gray-400 font-medium tracking-wide">
-            Last updated: {new Date().toLocaleString('en-BD')}
+            📅 {new Date().toLocaleString('en-BD')}
           </div>
         </div>
+      </div>
 
+      {/* Scrollable Content */}
+      <div className="flex-1 overflow-y-auto mt-44 sm:mt-40">
+        <div className="space-y-6 p-4 sm:p-6 max-w-7xl mx-auto">
       {/* Key Metrics - iOS Style Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
         {/* Total Products Card */}
@@ -358,8 +362,10 @@ export function Dashboard() {
             <p className="text-gray-400 text-center py-8 font-medium">No recent sales</p>
           )}
         </div>
+        </div>
       </div>
     </div>
+  );
     </div>
   );
 }
