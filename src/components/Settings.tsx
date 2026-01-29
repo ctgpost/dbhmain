@@ -13,6 +13,8 @@ export function Settings() {
   const [isExporting, setIsExporting] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
   const [isResetting, setIsResetting] = useState(false);
+  const [showImportPreview, setShowImportPreview] = useState(false);
+  const [importPreviewData, setImportPreviewData] = useState<any>(null);
   const [newUser, setNewUser] = useState({
     name: "",
     email: "",
@@ -209,7 +211,7 @@ export function Settings() {
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `raisa-dubai-backup-${new Date().toISOString().split('T')[0]}.json`;
+      a.download = `دبي-بوركة-هاوس-backup-${new Date().toISOString().split('T')[0]}.json`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -228,7 +230,6 @@ export function Settings() {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    setIsImporting(true);
     try {
       const text = await file.text();
       const importData = JSON.parse(text);
@@ -237,24 +238,67 @@ export function Settings() {
         throw new Error("Invalid backup file format");
       }
 
-      if (!importData.data || !importData.data.products || !importData.data.sales || 
-          !importData.data.customers || !importData.data.categories) {
-        throw new Error("Invalid backup file structure");
+      // Show preview instead of using confirm dialog
+      const dataCollections = importData.dataCollections || {};
+      
+      // Calculate statistics
+      const stats: any = {
+        timestamp: new Date(importData.timestamp).toLocaleString('bn-BD'),
+        version: importData.version || "Unknown",
+        collections: [],
+        totalRecords: 0
+      };
+      
+      for (const [collection, records] of Object.entries(dataCollections)) {
+        const count = Array.isArray(records) ? records.length : 0;
+        if (count > 0) {
+          stats.collections.push({ name: collection, count });
+          stats.totalRecords += count;
+        }
       }
-
-      // Confirm before importing
-      if (!confirm("⚠️ This will replace ALL existing data with the backup data. Are you sure?")) {
-        return;
-      }
-
-      await importDataMutation({ data: importData.data });
-      toast.success("Data imported successfully!");
+      
+      stats.collections.sort((a: any, b: any) => b.count - a.count);
+      
+      setImportPreviewData({ ...importData, stats });
+      setShowImportPreview(true);
     } catch (error) {
       console.error("Import error:", error);
-      toast.error("Failed to import data. Please check the file format.");
+      toast.error("ব্যাকআপ ফাইল পড়তে ব্যর্থ। ফাইলের ফরম্যাট চেক করুন।");
+    } finally {
+      event.target.value = '';
+    }
+  };
+
+  const confirmImport = async () => {
+    if (!importPreviewData) return;
+
+    setIsImporting(true);
+    try {
+      const dataCollections = importPreviewData.dataCollections || {};
+      
+      // Support legacy format
+      if (importPreviewData.products) {
+        dataCollections["products"] = importPreviewData.products;
+      }
+      if (importPreviewData.sales) {
+        dataCollections["sales"] = importPreviewData.sales;
+      }
+      if (importPreviewData.customers) {
+        dataCollections["customers"] = importPreviewData.customers;
+      }
+      if (importPreviewData.categories) {
+        dataCollections["categories"] = importPreviewData.categories;
+      }
+
+      await importDataMutation({ data: { ...importPreviewData, dataCollections } });
+      toast.success("ডেটা সফলভাবে পুনরুদ্ধার করা হয়েছে!");
+      setShowImportPreview(false);
+      setImportPreviewData(null);
+    } catch (error) {
+      console.error("Import error:", error);
+      toast.error("ডেটা পুনরুদ্ধার ব্যর্থ হয়েছে। দয়া করে পুনরায় চেষ্টা করুন।");
     } finally {
       setIsImporting(false);
-      event.target.value = '';
     }
   };
 
@@ -812,6 +856,103 @@ export function Settings() {
               </div>
             </div>
           </div>
+
+          {/* Import Preview Modal */}
+          {showImportPreview && importPreviewData && (
+            <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+              <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-96 overflow-auto">
+                <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white p-6 sticky top-0 z-10">
+                  <h2 className="text-2xl font-bold flex items-center gap-2 mb-2">📊 ডেটা পুনরুদ্ধার পূর্বরূপ</h2>
+                  <p className="text-blue-100">আপনার সিস্টেমে এই ডেটা পুনরুদ্ধার হবে</p>
+                </div>
+
+                <div className="p-6 space-y-4">
+                  {/* Summary Stats */}
+                  <div className="grid grid-cols-3 gap-4 mb-6">
+                    <div className="bg-blue-50 rounded-lg p-4 text-center border border-blue-200">
+                      <div className="text-3xl font-bold text-blue-600">{importPreviewData.stats.totalRecords}</div>
+                      <div className="text-xs text-gray-600 mt-1">মোট রেকর্ড</div>
+                    </div>
+                    <div className="bg-green-50 rounded-lg p-4 text-center border border-green-200">
+                      <div className="text-3xl font-bold text-green-600">{importPreviewData.stats.collections.length}</div>
+                      <div className="text-xs text-gray-600 mt-1">সংগ্রহ</div>
+                    </div>
+                    <div className="bg-purple-50 rounded-lg p-4 text-center border border-purple-200">
+                      <div className="text-sm font-bold text-purple-600">{importPreviewData.stats.version}</div>
+                      <div className="text-xs text-gray-600 mt-1">সংস্করণ</div>
+                    </div>
+                  </div>
+
+                  {/* Detailed Collections List */}
+                  <div>
+                    <h3 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
+                      <span>📋</span> সংগ্রহ বিবরণ
+                    </h3>
+                    <div className="bg-gray-50 rounded-lg p-4 max-h-48 overflow-y-auto">
+                      <div className="space-y-2">
+                        {importPreviewData.stats.collections.map((col: any, idx: number) => (
+                          <div key={idx} className="flex items-center justify-between bg-white p-3 rounded-lg border border-gray-200 hover:bg-blue-50 transition">
+                            <div className="flex items-center gap-2 flex-1">
+                              <span className="text-lg">📁</span>
+                              <div className="flex-1">
+                                <span className="font-medium text-gray-900 capitalize">{col.name}</span>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-semibold">
+                                {col.count} {col.count === 1 ? 'রেকর্ড' : 'রেকর্ড'}
+                              </span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Timestamp Info */}
+                  <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                    <p className="text-xs text-yellow-800">
+                      <span className="font-bold">⏰ ব্যাকআপ সময়:</span> {importPreviewData.stats.timestamp}
+                    </p>
+                  </div>
+
+                  {/* Warning */}
+                  <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                    <p className="text-sm text-red-800">
+                      <span className="font-bold">⚠️ সতর্কতা:</span> এটি আপনার সমস্ত বর্তমান ডেটা প্রতিস্থাপন করবে। পুনরুদ্ধারের পরে আপনি ডেটা ফেরত করতে পারবেন না।
+                    </p>
+                  </div>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="bg-gray-100 p-6 flex gap-3 justify-end sticky bottom-0">
+                  <button
+                    onClick={() => {
+                      setShowImportPreview(false);
+                      setImportPreviewData(null);
+                    }}
+                    className="px-6 py-2 bg-gray-300 text-gray-900 rounded-lg hover:bg-gray-400 font-semibold transition"
+                  >
+                    ❌ বাতিল করুন
+                  </button>
+                  <button
+                    onClick={confirmImport}
+                    disabled={isImporting}
+                    className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-400 font-semibold transition flex items-center gap-2"
+                  >
+                    {isImporting ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                        <span>পুনরুদ্ধার করছে...</span>
+                      </>
+                    ) : (
+                      <>✅ পুনরুদ্ধার শুরু করুন</>
+                    )}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
