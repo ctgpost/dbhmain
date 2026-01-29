@@ -1,4 +1,4 @@
-import { useState, lazy, Suspense, useEffect } from "react";
+import { useState, lazy, Suspense, useEffect, useCallback, useMemo } from "react";
 import { Authenticated, Unauthenticated, useQuery } from "convex/react";
 import { api } from "../convex/_generated/api";
 import { LoginWrapper } from "./components/LoginWrapper";
@@ -53,6 +53,9 @@ export default function App() {
       () => import("./components/Inventory"),
       () => import("./components/Sales"),
       () => import("./components/Reports"),
+      () => import("./components/Customers"),
+      () => import("./components/EmployeeManagement"),
+      () => import("./components/BarcodeManager"),
     ];
 
     // Delay preloading to avoid blocking initial render
@@ -66,8 +69,8 @@ export default function App() {
   // Fetch store settings
   const storeSettings = useQuery(api.settings.get);
 
-  // Desktop menu items
-  const desktopMenuItems = [
+  // Memoize menu items to prevent unnecessary recalculations
+  const desktopMenuItems = useMemo(() => [
     { id: "dashboard", name: "Dashboard", icon: "📊" },
     { id: "pos", name: "POS", icon: "🏷️" },
     { id: "inventory", name: "Inventory", icon: "📦" },
@@ -83,18 +86,18 @@ export default function App() {
     { id: "barcodes", name: "Barcodes", icon: "🏷️" },
     { id: "reports", name: "Reports", icon: "📈" },
     { id: "settings", name: "Settings", icon: "⚙️" },
-  ];
+  ], []);
 
   // Mobile bottom navigation items (4 main items)
-  const mobileBottomNavItems = [
+  const mobileBottomNavItems = useMemo(() => [
     { id: "dashboard", name: "Dashboard", icon: "📊" },
     { id: "pos", name: "POS", icon: "🏷️" },
     { id: "inventory", name: "Inventory", icon: "📦" },
     { id: "sales", name: "Sales", icon: "💰" },
-  ];
+  ], []);
 
   // Mobile menu items (accessible via hamburger menu)
-  const mobileMenuItems = [
+  const mobileMenuItems = useMemo(() => [
     { id: "dashboard", name: "Dashboard", icon: "📊" },
     { id: "pos", name: "POS", icon: "🏷️" },
     { id: "inventory", name: "Inventory", icon: "📦" },
@@ -110,9 +113,9 @@ export default function App() {
     { id: "barcodes", name: "Barcodes", icon: "🏷️" },
     { id: "reports", name: "Reports", icon: "📈" },
     { id: "settings", name: "Settings", icon: "⚙️" },
-  ];
+  ], []);
 
-  const renderContent = () => {
+  const renderContent = useCallback(() => {
     switch (activeTab) {
       case "dashboard":
         return <Dashboard />;
@@ -153,7 +156,7 @@ export default function App() {
       default:
         return <Dashboard />;
     }
-  };
+  }, [activeTab]);
 
   return (
     <>

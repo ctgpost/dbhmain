@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useMemo, memo } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { toast } from "sonner";
@@ -52,18 +52,21 @@ export default function Customers() {
   const updateCustomer = useMutation(api.customers.update);
   const deleteCustomer = useMutation(api.customers.remove);
 
-  const abayaStyles = ["Traditional", "Modern", "Dubai Style", "Saudi Style", "Kaftan", "Butterfly", "Umbrella"];
-  const standardSizes = ['50"', '52"', '54"', '56"', '58"', '60"', '62"'];
-  const popularColors = ["Black", "Navy Blue", "Maroon", "Brown", "Gray", "White", "Beige", "Green"];
+  // Memoize constant arrays to prevent re-renders
+  const abayaStyles = useMemo(() => ["Traditional", "Modern", "Dubai Style", "Saudi Style", "Kaftan", "Butterfly", "Umbrella"], []);
+  const standardSizes = useMemo(() => ['50"', '52"', '54"', '56"', '58"', '60"', '62"'], []);
+  const popularColors = useMemo(() => ["Black", "Navy Blue", "Maroon", "Brown", "Gray", "White", "Beige", "Green"], []);
 
-  // Welcome notification
+  // Debounce search to reduce API calls
   useEffect(() => {
-    if (customers) {
-      toast.success(`👥 Customers loaded: ${customers.length} total`, {
-        duration: 2000,
-      });
+    if (customers && searchTerm) {
+      // Only show notification on successful search
+      const timer = setTimeout(() => {
+        toast.success(`👥 Found ${customers.length} customer(s)`, { duration: 1500 });
+      }, 300);
+      return () => clearTimeout(timer);
     }
-  }, [customers]);
+  }, [customers, searchTerm]);
 
   // Validation functions
   const validateField = (field: string, value: any): string => {
@@ -340,30 +343,34 @@ export default function Customers() {
     toast.info("Form closed");
   };
 
-  // Filter and sort customers
-  const filteredCustomers = customers ? customers
-    .filter(customer => {
-      const matchesFilter = filterBy === "all" ||
-                           (filterBy === "active" && customer.isActive) ||
-                           (filterBy === "inactive" && !customer.isActive) ||
-                           (filterBy === "recent" && customer.lastPurchaseDate && 
-                            Date.now() - customer.lastPurchaseDate < 30 * 24 * 60 * 60 * 1000);
-      return matchesFilter;
-    })
-    .sort((a, b) => {
-      switch (sortBy) {
-        case "name":
-          return a.name.localeCompare(b.name);
-        case "purchases":
-          return b.totalPurchases - a.totalPurchases;
-        case "recent":
-          return (b.lastPurchaseDate || 0) - (a.lastPurchaseDate || 0);
-        case "created":
-          return b._creationTime - a._creationTime;
-        default:
-          return 0;
-      }
-    }) : [];
+  // Memoized filter and sort to prevent unnecessary recalculations
+  const filteredCustomers = useMemo(() => {
+    if (!customers) return [];
+    
+    return customers
+      .filter(customer => {
+        const matchesFilter = filterBy === "all" ||
+                             (filterBy === "active" && customer.isActive) ||
+                             (filterBy === "inactive" && !customer.isActive) ||
+                             (filterBy === "recent" && customer.lastPurchaseDate && 
+                              Date.now() - customer.lastPurchaseDate < 30 * 24 * 60 * 60 * 1000);
+        return matchesFilter;
+      })
+      .sort((a, b) => {
+        switch (sortBy) {
+          case "name":
+            return a.name.localeCompare(b.name);
+          case "purchases":
+            return b.totalPurchases - a.totalPurchases;
+          case "recent":
+            return (b.lastPurchaseDate || 0) - (a.lastPurchaseDate || 0);
+          case "created":
+            return b._creationTime - a._creationTime;
+          default:
+            return 0;
+        }
+      });
+  }, [customers, filterBy, sortBy]);
 
   if (!customers) {
     return (
@@ -412,12 +419,7 @@ export default function Customers() {
               type="text"
               placeholder="Search customers..."
               value={searchTerm}
-              onChange={(e) => {
-                setSearchTerm(e.target.value);
-                if (e.target.value) {
-                  toast.info(`🔍 Searching for: ${e.target.value}`);
-                }
-              }}
+              onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
             />
           </div>
@@ -425,16 +427,7 @@ export default function Customers() {
             <label className="block text-sm font-medium text-gray-700 mb-1">Filter</label>
             <select
               value={filterBy}
-              onChange={(e) => {
-                setFilterBy(e.target.value);
-                const filterNames = {
-                  'all': 'All Customers',
-                  'active': 'Active Customers',
-                  'inactive': 'Inactive Customers',
-                  'recent': 'Recent Customers'
-                };
-                toast.info(`🔽 Filter: ${filterNames[e.target.value as keyof typeof filterNames]}`);
-              }}
+              onChange={(e) => setFilterBy(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 text-sm"
             >
               <option value="all">All Customers</option>
@@ -447,16 +440,7 @@ export default function Customers() {
             <label className="block text-sm font-medium text-gray-700 mb-1">Sort By</label>
             <select
               value={sortBy}
-              onChange={(e) => {
-                setSortBy(e.target.value);
-                const sortNames = {
-                  'name': 'Customer Name',
-                  'purchases': 'Total Purchases',
-                  'recent': 'Last Purchase',
-                  'created': 'Date Added'
-                };
-                toast.info(`📊 Sorted by: ${sortNames[e.target.value as keyof typeof sortNames]}`);
-              }}
+              onChange={(e) => setSortBy(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 text-sm"
             >
               <option value="name">Name</option>
@@ -471,12 +455,12 @@ export default function Customers() {
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <div className="bg-white rounded-lg shadow border border-gray-200 p-3 sm:p-4 hover:shadow-md transition-shadow">
-          <div className="text-lg sm:text-2xl font-bold text-gray-900">{customers.length}</div>
+          <div className="text-lg sm:text-2xl font-bold text-gray-900">{customers?.length || 0}</div>
           <div className="text-xs sm:text-sm text-gray-600">Total Customers</div>
         </div>
         <div className="bg-white rounded-lg shadow border border-gray-200 p-3 sm:p-4 hover:shadow-md transition-shadow">
           <div className="text-lg sm:text-2xl font-bold text-green-600">
-            {customers.filter(c => c.isActive).length}
+            {customers?.filter(c => c.isActive).length || 0}
           </div>
           <div className="text-xs sm:text-sm text-gray-600">Active</div>
         </div>

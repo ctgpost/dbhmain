@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback, useMemo, memo } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { toast } from "sonner";
@@ -39,10 +39,11 @@ export default function EmployeeManagement() {
   const updateEmployee = useMutation(api.employees.update);
   const removeEmployee = useMutation(api.employees.remove);
 
-  const positions = ["Manager", "Cashier", "Sales Associate", "Stock Keeper"];
-  const permissionsList = ["pos", "inventory", "reports", "customers", "settings"];
+  // Memoize constant arrays
+  const positions = useMemo(() => ["Manager", "Cashier", "Sales Associate", "Stock Keeper"], []);
+  const permissionsList = useMemo(() => ["pos", "inventory", "reports", "customers", "settings"], []);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       if (showEditModal && selectedEmployee) {
@@ -61,9 +62,9 @@ export default function EmployeeManagement() {
     } catch (error: any) {
       toast.error(error.message || "Failed to save employee");
     }
-  };
+  }, [showEditModal, selectedEmployee, employees, formData, updateEmployee, createEmployee]);
 
-  const handleEdit = (employeeId: Id<"employees">) => {
+  const handleEdit = useCallback((employeeId: Id<"employees">) => {
     const employee = employees?.find(e => e._id === employeeId);
     if (employee) {
       setFormData({
@@ -82,9 +83,9 @@ export default function EmployeeManagement() {
       setSelectedEmployee(employeeId);
       setShowEditModal(true);
     }
-  };
+  }, [employees]);
 
-  const handleDelete = async (employeeId: Id<"employees">) => {
+  const handleDelete = useCallback(async (employeeId: Id<"employees">) => {
     if (confirm("Are you sure you want to delete this employee?")) {
       try {
         await removeEmployee({ id: employeeId });
@@ -93,9 +94,9 @@ export default function EmployeeManagement() {
         toast.error(error.message || "Failed to delete employee");
       }
     }
-  };
+  }, [removeEmployee]);
 
-  const resetForm = () => {
+  const resetForm = useCallback(() => {
     setFormData({
       employeeId: "",
       name: "",
@@ -112,16 +113,16 @@ export default function EmployeeManagement() {
     setShowAddModal(false);
     setShowEditModal(false);
     setSelectedEmployee(null);
-  };
+  }, []);
 
-  const togglePermission = (permission: string) => {
+  const togglePermission = useCallback((permission: string) => {
     setFormData(prev => ({
       ...prev,
       permissions: prev.permissions.includes(permission)
         ? prev.permissions.filter(p => p !== permission)
         : [...prev.permissions, permission],
     }));
-  };
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50">
