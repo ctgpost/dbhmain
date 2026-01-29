@@ -8,6 +8,21 @@ export function Dashboard() {
   const customers = useQuery(api.customers.list, {}) || [];
   const storeSettings = useQuery(api.settings.get);
 
+  // If data is loading, show a loading state
+  if (products === undefined || sales === undefined || categories === undefined || customers === undefined) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-purple-600 to-blue-600 rounded-full mb-4">
+            <div className="animate-spin rounded-full h-12 w-12 border-4 border-white border-t-transparent"></div>
+          </div>
+          <h2 className="text-xl font-bold text-gray-900 mb-2">Loading Dashboard...</h2>
+          <p className="text-gray-600">সিস্টেম প্রস্তুত হচ্ছে</p>
+        </div>
+      </div>
+    );
+  }
+
   // Calculate stats
   const totalProducts = products.length;
   const totalAbayas = products.reduce((sum, product) => sum + product.currentStock, 0);
