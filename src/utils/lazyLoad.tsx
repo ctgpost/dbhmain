@@ -1,4 +1,4 @@
-import React, { Suspense, ComponentType, ReactNode } from "react";
+import React, { Suspense, lazy, ComponentType, ReactNode } from "react";
 
 interface LazyComponentProps {
   fallback?: ReactNode;
@@ -59,17 +59,31 @@ export function preloadComponent<P extends object>(
 /**
  * Create a route-based lazy loaded component
  */
-export function createLazyRoute<P extends object>(
-  importPath: string,
-  displayName: string
-): ComponentType<P> {
-  const Component = React.lazy(() =>
-    import(`${importPath}`).then((module) => ({
-      default: module.default || module[displayName],
-    }))
-  );
+// Pre-defined lazy route components to avoid dynamic import issues
+export const LazyRoutes: Record<string, ComponentType<any>> = {
+  Dashboard: lazy(() => import("../components/Dashboard").then(m => ({ default: m.Dashboard }))),
+  POS: lazy(() => import("../components/POS").then(m => ({ default: m.POS }))),
+  Inventory: lazy(() => import("../components/Inventory").then(m => ({ default: m.Inventory }))),
+  Sales: lazy(() => import("../components/Sales").then(m => ({ default: m.Sales }))),
+  Customers: lazy(() => import("../components/Customers").then(m => ({ default: m.Customers }))),
+  Reports: lazy(() => import("../components/Reports").then(m => ({ default: m.Reports }))),
+  Settings: lazy(() => import("../components/Settings").then(m => ({ default: m.Settings }))),
+  Categories: lazy(() => import("../components/Categories").then(m => ({ default: m.Categories }))),
+  EmployeeManagement: lazy(() => import("../components/EmployeeManagement").then(m => ({ default: m.EmployeeManagement }))),
+  DiscountManagement: lazy(() => import("../components/DiscountManagement").then(m => ({ default: m.DiscountManagement }))),
+  BarcodeManager: lazy(() => import("../components/BarcodeManager").then(m => ({ default: m.BarcodeManager }))),
+  WhatsAppOrders: lazy(() => import("../components/WhatsAppOrders").then(m => ({ default: m.WhatsAppOrders }))),
+  OnlineStore: lazy(() => import("../components/OnlineStore").then(m => ({ default: m.OnlineStore }))),
+  Suppliers: lazy(() => import("../components/Suppliers").then(m => ({ default: m.Suppliers }))),
+  PurchaseReceiving: lazy(() => import("../components/PurchaseReceiving").then(m => ({ default: m.PurchaseReceiving }))),
+  EnhancedPOS: lazy(() => import("../components/EnhancedPOS").then(m => ({ default: m.EnhancedPOS }))),
+};
 
-  (Component as any).displayName = `Lazy(${displayName})`;
+export function createLazyRoute<P extends object>(
+  componentName: string
+): ComponentType<P> {
+  const Component = LazyRoutes[componentName] || LazyRoutes.Dashboard;
+  (Component as any).displayName = `Lazy(${componentName})`;
   return Component;
 }
 
