@@ -667,70 +667,146 @@ export function Settings() {
 
       {activeTab === "backup" && (
         <div className="space-y-4 sm:space-y-6">
-          <div className="bg-white rounded-lg shadow p-4 sm:p-6 border border-gray-200">
-            <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-6">Backup & Restore</h3>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 md:gap-6 mb-6">
-              {/* Export Data Card */}
-              <div className="border border-gray-200 rounded-lg p-3 sm:p-4 md:p-6 hover:shadow-md transition-shadow">
-                <div className="flex items-start gap-3 mb-4">
-                  <span className="text-xl sm:text-2xl flex-shrink-0">📤</span>
-                  <h4 className="font-semibold text-gray-900 text-sm sm:text-base">Export Data</h4>
-                </div>
-                <p className="text-xs sm:text-sm text-gray-600 mb-4 line-clamp-3">
-                  Download a complete backup of your store data including products, sales, and customers.
-                </p>
-                <button
-                  onClick={exportData}
-                  disabled={isExporting || !exportAllData}
-                  className="w-full px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 font-medium text-xs sm:text-sm transition-colors"
-                >
-                  {isExporting ? (
-                    <div className="flex items-center justify-center gap-2">
-                      <div className="animate-spin rounded-full h-3 w-3 sm:h-4 sm:w-4 border-b-2 border-white"></div>
-                      <span>Exporting...</span>
-                    </div>
-                  ) : (
-                    "📥 Export All Data"
-                  )}
-                </button>
+          {/* Backup Statistics Card */}
+          <div className="bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg shadow-lg p-4 sm:p-6 text-white">
+            <h3 className="text-lg sm:text-xl font-bold mb-4">📊 ব্যাকআপ পরিসংখ্যান</h3>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
+              <div className="bg-white/20 rounded-lg p-3 sm:p-4 backdrop-blur">
+                <div className="text-xl sm:text-2xl font-bold">32</div>
+                <div className="text-xs sm:text-sm opacity-90">সংগ্রহ (Collections)</div>
               </div>
+              <div className="bg-white/20 rounded-lg p-3 sm:p-4 backdrop-blur">
+                <div className="text-xl sm:text-2xl font-bold">∞</div>
+                <div className="text-xs sm:text-sm opacity-90">মোট রেকর্ড</div>
+              </div>
+              <div className="bg-white/20 rounded-lg p-3 sm:p-4 backdrop-blur">
+                <div className="text-xl sm:text-2xl font-bold">v2.0</div>
+                <div className="text-xs sm:text-sm opacity-90">ব্যাকআপ সংস্করণ</div>
+              </div>
+              <div className="bg-white/20 rounded-lg p-3 sm:p-4 backdrop-blur">
+                <div className="text-xl sm:text-2xl font-bold">JSON</div>
+                <div className="text-xs sm:text-sm opacity-90">ফরম্যাট</div>
+              </div>
+            </div>
+          </div>
 
-              {/* Import Data Card */}
-              <div className="border border-gray-200 rounded-lg p-3 sm:p-4 md:p-6 hover:shadow-md transition-shadow">
-                <div className="flex items-start gap-3 mb-4">
-                  <span className="text-xl sm:text-2xl flex-shrink-0">📥</span>
-                  <h4 className="font-semibold text-gray-900 text-sm sm:text-base">Import Data</h4>
+          {/* Main Backup Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+            {/* Export Data Card */}
+            <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-sm border border-white/60 p-4 sm:p-6 hover:shadow-md transition-shadow">
+              <div className="flex items-start gap-3 mb-4">
+                <span className="text-3xl flex-shrink-0">📤</span>
+                <div>
+                  <h4 className="font-bold text-gray-900 text-base sm:text-lg">সম্পূর্ণ ডেটা এক্সপোর্ট</h4>
+                  <p className="text-xs sm:text-sm text-gray-600 mt-1">সমস্ত সংগ্রহ ব্যাকআপ করুন</p>
                 </div>
-                <p className="text-xs sm:text-sm text-gray-600 mb-4 line-clamp-3">
-                  Restore your store data from a previously exported backup file.
-                </p>
+              </div>
+              <p className="text-xs sm:text-sm text-gray-600 mb-4">
+                এতে অন্তর্ভুক্ত রয়েছে: পণ্য, বিক্রয়, গ্রাহক, কর্মচারী, শাখা, ছাড়, অনুগত্য প্রোগ্রাম, কুপন এবং আরও অনেক কিছু।
+              </p>
+              <button
+                onClick={exportData}
+                disabled={isExporting || !exportAllData}
+                className="w-full px-4 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 disabled:from-gray-400 disabled:to-gray-500 font-semibold text-sm transition-all"
+              >
+                {isExporting ? (
+                  <div className="flex items-center justify-center gap-2">
+                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                    <span>এক্সপোর্ট করছে...</span>
+                  </div>
+                ) : (
+                  "📥 সম্পূর্ণ ব্যাকআপ ডাউনলোড করুন"
+                )}
+              </button>
+            </div>
+
+            {/* Import Data Card */}
+            <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-sm border border-white/60 p-4 sm:p-6 hover:shadow-md transition-shadow">
+              <div className="flex items-start gap-3 mb-4">
+                <span className="text-3xl flex-shrink-0">📥</span>
+                <div>
+                  <h4 className="font-bold text-gray-900 text-base sm:text-lg">ডেটা পুনরুদ্ধার করুন</h4>
+                  <p className="text-xs sm:text-sm text-gray-600 mt-1">ব্যাকআপ ফাইল থেকে পুনরুদ্ধার করুন</p>
+                </div>
+              </div>
+              <p className="text-xs sm:text-sm text-gray-600 mb-4">
+                আপনার সম্পূর্ণ ডেটা একটি JSON ব্যাকআপ ফাইল থেকে পুনরুদ্ধার করুন।
+              </p>
+              <div className="relative">
                 <input
                   type="file"
                   accept=".json"
                   onChange={handleFileImport}
                   disabled={isImporting}
-                  className="w-full px-2 sm:px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 file:mr-2 sm:file:mr-4 file:py-1 sm:file:py-2 file:px-2 sm:file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-medium file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100"
+                  className="hidden"
+                  id="backup-file-input"
                 />
-                {isImporting && (
-                  <div className="mt-2 flex items-center text-xs sm:text-sm text-gray-600 gap-2">
-                    <div className="animate-spin rounded-full h-3 w-3 sm:h-4 sm:w-4 border-b-2 border-purple-600 flex-shrink-0"></div>
-                    <span>Importing data...</span>
-                  </div>
-                )}
+                <label
+                  htmlFor="backup-file-input"
+                  className="block w-full px-4 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-lg hover:from-green-700 hover:to-green-800 disabled:from-gray-400 disabled:to-gray-500 font-semibold text-sm transition-all text-center cursor-pointer"
+                >
+                  {isImporting ? (
+                    <div className="flex items-center justify-center gap-2">
+                      <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                      <span>পুনরুদ্ধার করছে...</span>
+                    </div>
+                  ) : (
+                    "📤 JSON ফাইল নির্বাচন করুন"
+                  )}
+                </label>
+              </div>
+            </div>
+          </div>
+
+          {/* Backup Collections Info */}
+          <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-sm border border-white/60 p-4 sm:p-6">
+            <h4 className="font-bold text-gray-900 mb-4 text-base sm:text-lg">✅ ব্যাকআপ করা সংগ্রহসমূহ</h4>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3">
+              {[
+                "Branches", "Employees", "Discounts", "Products",
+                "Sales", "Customers", "Categories", "Stock Movements",
+                "Transactions", "Branch Transfers", "Settings", "Reviews",
+                "Wishlist", "Coupons", "Returns", "Analytics",
+                "User Roles", "User Rules", "Loyalty Programs", "Points",
+                "Advanced Coupons", "Redemptions", "Referrals", "Online Products",
+                "Online Orders", "WhatsApp Orders", "Notifications", "Permissions",
+                "Application Logs", "Supplier Data", "Custom Fields", "More..."
+              ].map((collection, idx) => (
+                <div key={idx} className="bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-2 sm:p-3 text-center">
+                  <span className="text-xs sm:text-sm font-medium text-gray-700">✓ {collection}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Important Notes */}
+          <div className="space-y-3">
+            <div className="bg-yellow-50 border-l-4 border-yellow-400 rounded-lg p-4 sm:p-6">
+              <div className="flex gap-3">
+                <span className="text-2xl flex-shrink-0">⚠️</span>
+                <div className="flex-1">
+                  <h4 className="font-bold text-yellow-900 mb-2">গুরুত্বপূর্ণ নোট:</h4>
+                  <ul className="text-xs sm:text-sm text-yellow-800 space-y-1">
+                    <li>✓ নিয়মিত ব্যাকআপ নিন - অন্তত সপ্তাহে একবার</li>
+                    <li>✓ ইমপোর্টের আগে সর্বদা ব্যাকআপ নিন</li>
+                    <li>✓ ইমপোর্ট বিদ্যমান ডেটা ওভাররাইট করবে</li>
+                    <li>✓ শুধুমাত্র DUBAI BORKA HOUSE থেকে তৈরি ফাইল ইমপোর্ট করুন</li>
+                    <li>✓ ব্যাকআপ ফাইলটি নিরাপদ জায়গায় সংরক্ষণ করুন</li>
+                  </ul>
+                </div>
               </div>
             </div>
 
-            <div className="p-3 sm:p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-              <div className="flex flex-col sm:flex-row sm:items-start gap-2 sm:gap-3">
-                <span className="text-yellow-600 text-lg sm:text-xl flex-shrink-0 pt-0.5">⚠️</span>
-                <div className="flex-1 min-w-0">
-                  <h4 className="font-medium text-yellow-800 text-sm sm:text-base">Important Notes:</h4>
-                  <ul className="text-xs sm:text-sm text-yellow-700 mt-2 space-y-1">
-                    <li>• Always backup your data before importing</li>
-                    <li>• Import will overwrite existing data</li>
-                    <li>• Only import files from DUBAI BORKA HOUSE</li>
-                    <li>• Contact support if you encounter issues</li>
+            <div className="bg-blue-50 border-l-4 border-blue-400 rounded-lg p-4 sm:p-6">
+              <div className="flex gap-3">
+                <span className="text-2xl flex-shrink-0">ℹ️</span>
+                <div className="flex-1">
+                  <h4 className="font-bold text-blue-900 mb-2">ব্যাকআপ তথ্য:</h4>
+                  <ul className="text-xs sm:text-sm text-blue-800 space-y-1">
+                    <li>• ব্যাকআপ ভার্সন: 2.0 (সম্পূর্ণ ডেটা সহায়তা)</li>
+                    <li>• ফরম্যাট: JSON (যেকোনো ডিভাইসে নিরাপদ)</li>
+                    <li>• সমস্ত 32টি সংগ্রহ সংরক্ষিত</li>
+                    <li>• স্বয়ংক্রিয় টাইমস্ট্যাম্প এবং সংস্করণ নিয়ন্ত্রণ</li>
                   </ul>
                 </div>
               </div>
