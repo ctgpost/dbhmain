@@ -127,7 +127,7 @@ export default function Inventory() {
   const commonSizes = useMemo(() => ['50"', '52"', '54"', '56"', '58"', '60"', '62"'], []);
   const commonColors = useMemo(() => [
     'Black', 'Sky Blue', 'Navy Blue', 'Dark Brown', 'Maroon', 'Dark Green', 'Lemon', 'Pink', 'Mint', 
-    'Purple', 'Grey', 'Beige', 'White', 'Cream', 'Gold', 'Silver' 'Red', 'Crimson', 'Burgundy', 'Wine', 'Coral', 'Peach', 'Rose Pink', 'Baby Pink', 'Hot Pink',
+    'Purple', 'Grey', 'Beige', 'White', 'Cream', 'Gold', 'Silver', 'Red', 'Crimson', 'Burgundy', 'Wine', 'Coral', 'Peach', 'Rose Pink', 'Baby Pink', 'Hot Pink',
 'Fuchsia', 'Lavender', 'Lilac', 'Violet', 'Plum', 'Royal Blue', 'Cobalt Blue', 'Teal', 'Turquoise', 'Aqua', 'Sea Green', 'Olive', 'Olive Green', 'Bottle Green', 'Emerald Green',
 'Pista', 'Mustard', 'Amber', 'Rust', 'Copper', 'Bronze', 'Chocolate Brown', 'Coffee', 'Mocha', 'Camel', 'Khaki', 'Taupe', 'Charcoal', 'Ash', 'Off White', 'Ivory', 'Pearl', 'Champagne', 'Metallic Gold', 'Metallic Silver', 'Gunmetal', 'Midnight Blue', 'Indigo'
 ], []);
