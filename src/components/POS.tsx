@@ -244,8 +244,8 @@ export default function POS() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl sm:text-4xl font-bold text-white">🏷️ Point of Sale</h1>
-          <p className="text-sm text-white mt-1">Process sales transactions</p>
+          <h1 className="text-3xl sm:text-4xl font-bold text-black">🏷️ Point of Sale</h1>
+          <p className="text-sm text-gray-600 mt-1">Process sales transactions</p>
         </div>
         <div className="flex flex-col sm:flex-row gap-2">
           <button

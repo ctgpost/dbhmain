@@ -28,6 +28,7 @@ import type * as http from "../http.js";
 import type * as loyalty from "../loyalty.js";
 import type * as notifications from "../notifications.js";
 import type * as onlineStore from "../onlineStore.js";
+import type * as outstanding from "../outstanding.js";
 import type * as products from "../products.js";
 import type * as returns from "../returns.js";
 import type * as reviews from "../reviews.js";
@@ -64,6 +65,7 @@ declare const fullApi: ApiFromModules<{
   loyalty: typeof loyalty;
   notifications: typeof notifications;
   onlineStore: typeof onlineStore;
+  outstanding: typeof outstanding;
   products: typeof products;
   returns: typeof returns;
   reviews: typeof reviews;

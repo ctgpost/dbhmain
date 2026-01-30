@@ -758,6 +758,121 @@ const applicationTables = {
     .index("by_product", ["productId"])
     .index("by_date", ["createdAt"])
     .index("by_type", ["type"]),
+
+  // Outstanding Amount / Customer Receivables Management
+  outstandingAmounts: defineTable({
+    customerId: v.id("customers"),
+    customerName: v.string(),
+    customerPhone: v.optional(v.string()),
+    customerEmail: v.optional(v.string()),
+    branchId: v.id("branches"),
+    branchName: v.string(),
+    saleIds: v.array(v.id("sales")), // Related sale IDs
+    totalAmount: v.number(), // Total outstanding amount
+    paidAmount: v.number(), // Total paid so far
+    remainingAmount: v.number(), // Remaining balance
+    outstandingDays: v.number(), // Days since first outstanding
+    status: v.string(), // "active", "resolved", "overdue", "partial"
+    dueDate: v.optional(v.number()), // Expected payment date
+    notes: v.optional(v.string()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+    createdBy: v.id("users"),
+    lastModifiedBy: v.id("users"),
+  })
+    .index("by_customer", ["customerId"])
+    .index("by_branch", ["branchId"])
+    .index("by_status", ["status"])
+    .index("by_amount", ["remainingAmount"])
+    .index("by_days", ["outstandingDays"]),
+
+  // Payment Records for Outstanding Amounts
+  outstandingPayments: defineTable({
+    outstandingId: v.id("outstandingAmounts"),
+    customerId: v.id("customers"),
+    customerName: v.string(),
+    saleId: v.optional(v.id("sales")),
+    saleNumber: v.optional(v.string()),
+    amount: v.number(), // Payment amount
+    paymentMethod: v.string(), // "cash", "card", "bank_transfer", "mobile_banking", "cheque", "other"
+    paymentDetails: v.optional(v.object({
+      transactionId: v.optional(v.string()),
+      phoneNumber: v.optional(v.string()),
+      chequeNumber: v.optional(v.string()),
+      bankName: v.optional(v.string()),
+      reference: v.optional(v.string()),
+    })),
+    paymentDate: v.number(),
+    notes: v.optional(v.string()),
+    branchId: v.id("branches"),
+    branchName: v.string(),
+    recordedBy: v.id("users"),
+    recordedByName: v.string(),
+  })
+    .index("by_outstanding", ["outstandingId"])
+    .index("by_customer", ["customerId"])
+    .index("by_payment_date", ["paymentDate"])
+    .index("by_payment_method", ["paymentMethod"]),
+
+  // Payment Reminders for Outstanding Amounts
+  paymentReminders: defineTable({
+    outstandingId: v.id("outstandingAmounts"),
+    customerId: v.id("customers"),
+    customerName: v.string(),
+    customerPhone: v.optional(v.string()),
+    customerEmail: v.optional(v.string()),
+    remainingAmount: v.number(),
+    reminderType: v.string(), // "sms", "email", "whatsapp", "call"
+    reminderStatus: v.string(), // "pending", "sent", "failed", "acknowledged"
+    message: v.optional(v.string()),
+    sentAt: v.optional(v.number()),
+    scheduledFor: v.number(), // Date when to send reminder
+    daysOverdue: v.number(),
+    createdAt: v.number(),
+    sentBy: v.optional(v.id("users")),
+    failureReason: v.optional(v.string()),
+  })
+    .index("by_outstanding", ["outstandingId"])
+    .index("by_customer", ["customerId"])
+    .index("by_status", ["reminderStatus"])
+    .index("by_date", ["scheduledFor"]),
+
+  // Outstanding Amount Aging Report
+  outstandingAging: defineTable({
+    customerId: v.id("customers"),
+    customerName: v.string(),
+    branchId: v.id("branches"),
+    branchName: v.string(),
+    current: v.number(), // 0-30 days
+    days30_60: v.number(), // 30-60 days
+    days60_90: v.number(), // 60-90 days
+    days90plus: v.number(), // 90+ days
+    totalOutstanding: v.number(),
+    lastUpdated: v.number(),
+  })
+    .index("by_customer", ["customerId"])
+    .index("by_branch", ["branchId"]),
+
+  // Collection History / Follow-ups
+  collectionFollowups: defineTable({
+    outstandingId: v.id("outstandingAmounts"),
+    customerId: v.id("customers"),
+    customerName: v.string(),
+    followupType: v.string(), // "call", "sms", "email", "whatsapp", "visit", "note"
+    description: v.string(),
+    promiseAmount: v.optional(v.number()), // Amount customer promised to pay
+    promiseDate: v.optional(v.number()), // When they promised to pay
+    outcome: v.string(), // "promised", "partial_paid", "pending", "no_response", "refused"
+    notes: v.optional(v.string()),
+    nextFollowupDate: v.optional(v.number()),
+    createdAt: v.number(),
+    createdBy: v.id("users"),
+    createdByName: v.string(),
+  })
+    .index("by_outstanding", ["outstandingId"])
+    .index("by_customer", ["customerId"])
+    .index("by_type", ["followupType"])
+    .index("by_date", ["createdAt"]),
 };
 
 

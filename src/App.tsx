@@ -26,6 +26,7 @@ const WhatsAppOrders = lazy(() => import("./components/WhatsAppOrders"));
 const OnlineStore = lazy(() => import("./components/OnlineStore"));
 const StockTransferManagement = lazy(() => import("./components/StockTransferManagement"));
 const StockManagement = lazy(() => import("./components/StockManagement"));
+const OutstandingAmount = lazy(() => import("./components/OutstandingAmount"));
 
 export default function App() {
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -83,6 +84,7 @@ export default function App() {
     { id: "stock-transfer", name: "Stock Transfer", icon: "🔄" },
     { id: "sales", name: "Sales", icon: "💰" },
     { id: "customers", name: "Customers", icon: "👥" },
+    { id: "outstanding", name: "Outstanding", icon: "💸" },
     { id: "employees", name: "Employees", icon: "👔" },
     { id: "discounts", name: "Discounts", icon: "🎁" },
     { id: "whatsapp", name: "WhatsApp", icon: "📱" },
@@ -110,6 +112,7 @@ export default function App() {
     { id: "stock-transfer", name: "Stock Transfer", icon: "🔄" },
     { id: "sales", name: "Sales", icon: "💰" },
     { id: "customers", name: "Customers", icon: "👥" },
+    { id: "outstanding", name: "Outstanding", icon: "💸" },
     { id: "employees", name: "Employees", icon: "👔" },
     { id: "discounts", name: "Discounts", icon: "🎁" },
     { id: "whatsapp", name: "WhatsApp", icon: "📱" },
@@ -139,6 +142,8 @@ export default function App() {
         return <Suspense fallback={<LazyLoadingFallback />}><Sales /></Suspense>;
       case "customers":
         return <Suspense fallback={<LazyLoadingFallback />}><Customers /></Suspense>;
+      case "outstanding":
+        return <Suspense fallback={<LazyLoadingFallback />}><OutstandingAmount /></Suspense>;
       case "employees":
         return <Suspense fallback={<LazyLoadingFallback />}><EmployeeManagement /></Suspense>;
       case "discounts":
