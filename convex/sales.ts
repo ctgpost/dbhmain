@@ -7,6 +7,7 @@ export const list = query({
     limit: v.optional(v.number()),
     customerId: v.optional(v.id("customers")),
     status: v.optional(v.string()),
+    includeReturned: v.optional(v.boolean()), // ✅ Option to include returned sales
   },
   handler: async (ctx, args) => {
     await getAuthUserId(ctx);
@@ -15,6 +16,11 @@ export const list = query({
       .query("sales")
       .order("desc")
       .take(args.limit || 50);
+    
+    // ✅ Filter out returned & cancelled sales by default (they should appear in Refund list, not Sales list)
+    if (!args.includeReturned) {
+      sales = sales.filter(sale => sale.status !== "returned" && sale.status !== "cancelled");
+    }
     
     if (args.customerId) {
       sales = sales.filter(sale => sale.customerId === args.customerId);
@@ -49,6 +55,7 @@ export const create = mutation({
       size: v.optional(v.string()),
     })),
     subtotal: v.number(),
+    tax: v.optional(v.number()),
     discount: v.number(),
     total: v.number(),
     paidAmount: v.number(),
@@ -74,6 +81,22 @@ export const create = mutation({
     const user = await ctx.db.get(userId);
     if (!user) throw new Error("User not found");
     
+    // ✅ Problem #6: Real-time stock validation before creating sale
+    // Validate that all items have sufficient stock RIGHT NOW
+    for (const item of args.items) {
+      const product = await ctx.db.get(item.productId);
+      if (!product) {
+        throw new Error(`Product ${item.productId} not found`);
+      }
+      
+      if (product.currentStock < item.quantity) {
+        throw new Error(
+          `Stock validation failed: ${item.productName} has only ${product.currentStock} items ` +
+          `available (requested ${item.quantity}). This may have been purchased on another terminal.`
+        );
+      }
+    }
+    
     // Generate sale number
     const timestamp = Date.now();
     const saleNumber = `INV-${timestamp}`;
@@ -98,7 +121,7 @@ export const create = mutation({
       customerName: args.customerName || "Walk-in Customer",
       items: args.items,
       subtotal: args.subtotal,
-      tax: 0, // No VAT as requested
+      tax: args.tax || 0, // Include tax from frontend
       discount: args.discount,
       total: args.total,
       paidAmount: args.paidAmount,
@@ -116,8 +139,21 @@ export const create = mutation({
       const product = await ctx.db.get(item.productId);
       if (product) {
         const newStock = product.currentStock - item.quantity;
+        
+        // Update branch stock as well
+        const updatedBranchStock = product.branchStock.map((bs: any) => {
+          if (bs.branchId === defaultBranch._id) {
+            return {
+              ...bs,
+              currentStock: Math.max(0, bs.currentStock - item.quantity),
+            };
+          }
+          return bs;
+        });
+        
         await ctx.db.patch(item.productId, {
           currentStock: Math.max(0, newStock),
+          branchStock: updatedBranchStock,
         });
         
         // Record stock movement
@@ -142,10 +178,19 @@ export const create = mutation({
     if (args.customerId) {
       const customer = await ctx.db.get(args.customerId);
       if (customer) {
-        await ctx.db.patch(args.customerId, {
+        // ✅ Problem #5: Save delivery address for next order auto-fill
+        const updateData: any = {
           totalPurchases: customer.totalPurchases + args.total,
           lastPurchaseDate: Date.now(),
-        });
+        };
+        
+        // If this is a delivery, save the address and phone for future orders
+        if (args.deliveryInfo?.type === "delivery") {
+          updateData.lastDeliveryAddress = args.deliveryInfo.address;
+          updateData.lastDeliveryPhone = args.deliveryInfo.phone;
+        }
+        
+        await ctx.db.patch(args.customerId, updateData);
       }
     }
     

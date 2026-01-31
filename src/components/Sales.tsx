@@ -3,10 +3,12 @@ import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { Id } from "../../convex/_generated/dataModel";
 import { InvoiceModal } from "./InvoiceModal";
+import RefundManagement from "./RefundManagement";
 
 export default function Sales() {
   const [selectedSale, setSelectedSale] = useState<any>(null);
   const [showInvoice, setShowInvoice] = useState(false);
+  const [showRefundManagement, setShowRefundManagement] = useState(false);
   const [dateFilter, setDateFilter] = useState({
     startDate: "",
     endDate: "",
@@ -40,12 +42,34 @@ export default function Sales() {
     { id: "cod", name: "Cash on Delivery" },
   ];
 
+  if (showRefundManagement) {
+    return (
+      <div>
+        <button
+          onClick={() => setShowRefundManagement(false)}
+          className="mb-4 px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded font-medium transition"
+        >
+          ← Back to Sales
+        </button>
+        <RefundManagement />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-4 sm:space-y-6 px-2 sm:px-0">
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center space-y-2 sm:space-y-0">
         <h2 className="text-xl sm:text-2xl font-bold text-white">Sales History</h2>
-        <div className="text-sm text-gray-500">
-          Total Sales: {sales.length}
+        <div className="flex gap-2">
+          <button
+            onClick={() => setShowRefundManagement(true)}
+            className="px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded font-medium transition"
+          >
+            Manage Refunds
+          </button>
+          <div className="text-sm text-gray-500">
+            Total Sales: {sales.length}
+          </div>
         </div>
       </div>
 

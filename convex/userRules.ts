@@ -21,16 +21,21 @@ export const getAllRules = query({
 // Create a new role
 export const createRole = mutation({
   args: {
-    name: v.string(),
+    roleName: v.string(),
     description: v.optional(v.string()),
     permissions: v.array(v.string()),
   },
   handler: async (ctx, args) => {
+    const user = await ctx.auth.getUserIdentity();
+    if (!user) throw new Error("User not authenticated");
+    
     const roleId = await ctx.db.insert("userRoles", {
-      name: args.name,
-      description: args.description,
+      roleName: args.roleName,
+      description: args.description || "",
       permissions: args.permissions,
       isActive: true,
+      createdBy: user.tokenIdentifier as any,
+      createdByName: user.email || "System",
       createdAt: Date.now(),
       updatedAt: Date.now(),
     });
@@ -42,7 +47,7 @@ export const createRole = mutation({
 export const updateRole = mutation({
   args: {
     roleId: v.id("userRoles"),
-    name: v.optional(v.string()),
+    roleName: v.optional(v.string()),
     description: v.optional(v.string()),
     permissions: v.optional(v.array(v.string())),
     isActive: v.optional(v.boolean()),
@@ -51,13 +56,15 @@ export const updateRole = mutation({
     const role = await ctx.db.get(args.roleId);
     if (!role) throw new Error("Role not found");
 
-    await ctx.db.patch(args.roleId, {
-      name: args.name || role.name,
-      description: args.description !== undefined ? args.description : role.description,
-      permissions: args.permissions || role.permissions,
-      isActive: args.isActive !== undefined ? args.isActive : role.isActive,
+    const updates: any = {
       updatedAt: Date.now(),
-    });
+    };
+    if (args.roleName) updates.roleName = args.roleName;
+    if (args.description !== undefined) updates.description = args.description;
+    if (args.permissions) updates.permissions = args.permissions;
+    if (args.isActive !== undefined) updates.isActive = args.isActive;
+    
+    await ctx.db.patch(args.roleId, updates);
     return args.roleId;
   },
 });

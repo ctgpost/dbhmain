@@ -7,6 +7,7 @@ import { Dashboard } from "./components/Dashboard";
 import { LazyLoadingFallback, preloadComponents } from "./utils/lazyLoad";
 import { registerServiceWorkerCacheHandlers } from "./utils/cacheService";
 import { useOfflineSync } from "./hooks/useOfflineSync";
+import { useSystemInitialization } from "./hooks/useSystemInitialization";
 
 // Lazy load heavy components
 const Inventory = lazy(() => import("./components/Inventory"));
@@ -27,6 +28,9 @@ const OnlineStore = lazy(() => import("./components/OnlineStore"));
 const StockTransferManagement = lazy(() => import("./components/StockTransferManagement"));
 const StockManagement = lazy(() => import("./components/StockManagement"));
 const OutstandingAmount = lazy(() => import("./components/OutstandingAmount"));
+const HRPayroll = lazy(() => import("./components/HRPayroll"));
+const UserManagement = lazy(() => import("./components/UserManagement"));
+const RefundManagement = lazy(() => import("./components/RefundManagement"));
 
 export default function App() {
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -34,6 +38,9 @@ export default function App() {
   
   // Initialize offline sync
   const { isOnline } = useOfflineSync();
+  
+  // Initialize system with default roles
+  const { initialized, isInitializing, rolesCount } = useSystemInitialization();
   
   // Initialize Service Worker and caching
   useEffect(() => {
@@ -85,11 +92,14 @@ export default function App() {
     { id: "sales", name: "Sales", icon: "💰" },
     { id: "customers", name: "Customers", icon: "👥" },
     { id: "outstanding", name: "Outstanding", icon: "💸" },
+    { id: "refunds", name: "Refunds", icon: "↩️" },
+    { id: "hr", name: "HR & Payroll", icon: "👔" },
     { id: "employees", name: "Employees", icon: "👔" },
     { id: "discounts", name: "Discounts", icon: "🎁" },
     { id: "whatsapp", name: "WhatsApp", icon: "📱" },
     { id: "online", name: "Online Store", icon: "🌐" },
     { id: "barcodes", name: "Barcodes", icon: "🏷️" },
+    { id: "users", name: "User Management", icon: "👥" },
     { id: "reports", name: "Reports", icon: "📈" },
     { id: "settings", name: "Settings", icon: "⚙️" },
   ], []);
@@ -113,11 +123,13 @@ export default function App() {
     { id: "sales", name: "Sales", icon: "💰" },
     { id: "customers", name: "Customers", icon: "👥" },
     { id: "outstanding", name: "Outstanding", icon: "💸" },
+    { id: "refunds", name: "Refunds", icon: "↩️" },
     { id: "employees", name: "Employees", icon: "👔" },
     { id: "discounts", name: "Discounts", icon: "🎁" },
     { id: "whatsapp", name: "WhatsApp", icon: "📱" },
     { id: "online", name: "Online Store", icon: "🌐" },
     { id: "barcodes", name: "Barcodes", icon: "🏷️" },
+    { id: "users", name: "User Management", icon: "👥" },
     { id: "reports", name: "Reports", icon: "📈" },
     { id: "settings", name: "Settings", icon: "⚙️" },
   ], []);
@@ -140,12 +152,18 @@ export default function App() {
         return <Suspense fallback={<LazyLoadingFallback />}><EnhancedPOS /></Suspense>;
       case "sales":
         return <Suspense fallback={<LazyLoadingFallback />}><Sales /></Suspense>;
+      case "refunds":
+        return <Suspense fallback={<LazyLoadingFallback />}><RefundManagement /></Suspense>;
       case "customers":
         return <Suspense fallback={<LazyLoadingFallback />}><Customers /></Suspense>;
       case "outstanding":
         return <Suspense fallback={<LazyLoadingFallback />}><OutstandingAmount /></Suspense>;
+      case "hr":
+        return <Suspense fallback={<LazyLoadingFallback />}><HRPayroll /></Suspense>;
       case "employees":
         return <Suspense fallback={<LazyLoadingFallback />}><EmployeeManagement /></Suspense>;
+      case "users":
+        return <Suspense fallback={<LazyLoadingFallback />}><UserManagement /></Suspense>;
       case "discounts":
         return <Suspense fallback={<LazyLoadingFallback />}><DiscountManagement /></Suspense>;
       case "whatsapp":

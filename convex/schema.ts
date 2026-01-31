@@ -299,6 +299,8 @@ const applicationTables = {
     preferredColors: v.optional(v.array(v.string())),
     totalPurchases: v.number(),
     lastPurchaseDate: v.optional(v.number()),
+    lastDeliveryAddress: v.optional(v.string()), // ✅ For delivery auto-fill
+    lastDeliveryPhone: v.optional(v.string()), // ✅ For delivery auto-fill
     loyaltyPoints: v.optional(v.number()),
     notes: v.optional(v.string()),
     isActive: v.boolean(),
@@ -519,17 +521,6 @@ const applicationTables = {
   })
     .index("by_date", ["date"])
     .index("by_channel", ["channel"]),
-
-  // User Roles
-  userRoles: defineTable({
-    name: v.string(),
-    description: v.optional(v.string()),
-    permissions: v.array(v.string()), // Array of permission names
-    createdAt: v.number(),
-    updatedAt: v.number(),
-    isActive: v.boolean(),
-  })
-    .index("by_name", ["name"]),
 
   // User Rules
   userRules: defineTable({
@@ -873,6 +864,596 @@ const applicationTables = {
     .index("by_customer", ["customerId"])
     .index("by_type", ["followupType"])
     .index("by_date", ["createdAt"]),
+
+  // ============================================
+  // HR & PAYROLL TABLES
+  // ============================================
+
+  // Employee Information
+  hrEmployees: defineTable({
+    employeeId: v.string(), // Unique ID like EMP-001
+    firstName: v.string(),
+    lastName: v.string(),
+    fullName: v.string(),
+    email: v.string(),
+    phone: v.string(),
+    dateOfBirth: v.number(),
+    gender: v.string(), // "male", "female", "other"
+    address: v.string(),
+    city: v.string(),
+    state: v.string(),
+    zipCode: v.string(),
+    nationality: v.string(),
+    branchId: v.id("branches"),
+    branchName: v.string(),
+    department: v.string(), // "Sales", "Operations", "HR", "Finance"
+    designation: v.string(), // "Manager", "Executive", "Coordinator"
+    reportingManagerId: v.optional(v.id("hrEmployees")),
+    reportingManagerName: v.optional(v.string()),
+    employmentType: v.string(), // "permanent", "contract", "temporary", "internship"
+    joinDate: v.number(),
+    confirmationDate: v.optional(v.number()),
+    baseSalary: v.number(),
+    grossSalary: v.number(),
+    currency: v.string(), // "BDT", "USD", "INR"
+    bankAccountNumber: v.optional(v.string()),
+    bankName: v.optional(v.string()),
+    ifscCode: v.optional(v.string()),
+    emergencyContactName: v.string(),
+    emergencyContactPhone: v.string(),
+    emergencyContactRelation: v.string(),
+    panNumber: v.optional(v.string()),
+    aadharNumber: v.optional(v.string()),
+    epfNumber: v.optional(v.string()),
+    esiNumber: v.optional(v.string()),
+    status: v.string(), // "active", "inactive", "on_leave", "terminated"
+    terminationDate: v.optional(v.number()),
+    terminationReason: v.optional(v.string()),
+  })
+    .index("by_employee_id", ["employeeId"])
+    .index("by_branch", ["branchId"])
+    .index("by_department", ["department"])
+    .index("by_status", ["status"]),
+
+  // Attendance Tracking
+  hrAttendance: defineTable({
+    employeeId: v.id("hrEmployees"),
+    employeeName: v.string(),
+    branchId: v.id("branches"),
+    branchName: v.string(),
+    attendanceDate: v.number(),
+    status: v.string(), // "present", "absent", "half_day", "leave", "sick_leave", "on_duty"
+    checkInTime: v.optional(v.number()),
+    checkOutTime: v.optional(v.number()),
+    workingHours: v.optional(v.number()),
+    notes: v.optional(v.string()),
+    approvedBy: v.optional(v.id("users")),
+    approvedByName: v.optional(v.string()),
+  })
+    .index("by_employee", ["employeeId"])
+    .index("by_date", ["attendanceDate"])
+    .index("by_branch", ["branchId"]),
+
+  // Leave Management
+  hrLeaves: defineTable({
+    leaveRequestId: v.string(),
+    employeeId: v.id("hrEmployees"),
+    employeeName: v.string(),
+    branchId: v.id("branches"),
+    branchName: v.string(),
+    leaveType: v.string(), // "annual", "sick", "casual", "maternity", "paternity", "bereavement"
+    startDate: v.number(),
+    endDate: v.number(),
+    totalDays: v.number(),
+    reason: v.string(),
+    status: v.string(), // "pending", "approved", "rejected", "cancelled"
+    approvedBy: v.optional(v.id("hrEmployees")),
+    approvedByName: v.optional(v.string()),
+    approvalDate: v.optional(v.number()),
+    comments: v.optional(v.string()),
+    rejectionReason: v.optional(v.string()),
+    requestedAt: v.number(),
+  })
+    .index("by_employee", ["employeeId"])
+    .index("by_status", ["status"])
+    .index("by_date_range", ["startDate", "endDate"])
+    .index("by_type", ["leaveType"]),
+
+  // Leave Balance
+  hrLeaveBalance: defineTable({
+    employeeId: v.id("hrEmployees"),
+    employeeName: v.string(),
+    year: v.number(),
+    annualLeaveBalance: v.number(),
+    annualLeaveUsed: v.number(),
+    sickLeaveBalance: v.number(),
+    sickLeaveUsed: v.number(),
+    casualLeaveBalance: v.number(),
+    casualLeaveUsed: v.number(),
+    maternityLeaveBalance: v.number(),
+    maternityLeaveUsed: v.number(),
+    paternityLeaveBalance: v.number(),
+    paternityLeaveUsed: v.number(),
+    bereavementLeaveBalance: v.number(),
+    bereavementLeaveUsed: v.number(),
+  })
+    .index("by_employee_year", ["employeeId", "year"]),
+
+  // Overtime Management
+  hrOvertime: defineTable({
+    employeeId: v.id("hrEmployees"),
+    employeeName: v.string(),
+    branchId: v.id("branches"),
+    branchName: v.string(),
+    overtimeDate: v.number(),
+    overtimeHours: v.number(),
+    overtimeRate: v.number(), // Rate multiplier (1.5x, 2x)
+    totalAmount: v.number(),
+    reason: v.string(),
+    approvedBy: v.optional(v.id("hrEmployees")),
+    approvedByName: v.optional(v.string()),
+    status: v.string(), // "pending", "approved", "rejected"
+    notes: v.optional(v.string()),
+  })
+    .index("by_employee", ["employeeId"])
+    .index("by_date", ["overtimeDate"])
+    .index("by_status", ["status"]),
+
+  // Salary Structure
+  hrSalaryStructure: defineTable({
+    employeeId: v.id("hrEmployees"),
+    employeeName: v.string(),
+    effectiveDate: v.number(),
+    baseSalary: v.number(),
+    dearness: v.optional(v.number()), // Dearness allowance
+    houseRent: v.optional(v.number()), // HRA
+    travelAllowance: v.optional(v.number()), // TA
+    communicationAllowance: v.optional(v.number()), // CA
+    medicalAllowance: v.optional(v.number()), // MA
+    otherAllowances: v.optional(v.array(v.object({
+      name: v.string(),
+      amount: v.number(),
+    }))),
+    grossSalary: v.number(),
+    basicDeduction: v.optional(v.number()),
+    epfDeduction: v.optional(v.number()),
+    esiDeduction: v.optional(v.number()),
+    professionalTax: v.optional(v.number()),
+    incomeTaxDeduction: v.optional(v.number()),
+    otherDeductions: v.optional(v.array(v.object({
+      name: v.string(),
+      amount: v.number(),
+    }))),
+    netSalary: v.number(),
+    status: v.string(), // "active", "inactive"
+  })
+    .index("by_employee", ["employeeId"])
+    .index("by_effective_date", ["effectiveDate"]),
+
+  // Payroll
+  hrPayroll: defineTable({
+    payrollId: v.string(), // PAYROLL-2026-01
+    payrollMonth: v.number(), // Timestamp of month start
+    payrollYear: v.number(),
+    payrollMonthName: v.string(), // "January 2026"
+    employeeId: v.id("hrEmployees"),
+    employeeName: v.string(),
+    branchId: v.id("branches"),
+    branchName: v.string(),
+    baseSalary: v.number(),
+    allowances: v.number(),
+    grossSalary: v.number(),
+    overtimeAmount: v.number(),
+    bonusAmount: v.number(),
+    incentiveAmount: v.number(),
+    totalEarnings: v.number(),
+    epfDeduction: v.number(),
+    esiDeduction: v.number(),
+    professionalTax: v.number(),
+    incomeTaxDeduction: v.number(),
+    otherDeductions: v.number(),
+    totalDeductions: v.number(),
+    netSalary: v.number(),
+    status: v.string(), // "draft", "calculated", "approved", "paid", "pending"
+    approvedBy: v.optional(v.id("users")),
+    approvedByName: v.optional(v.string()),
+    approvalDate: v.optional(v.number()),
+    paidDate: v.optional(v.number()),
+    paymentMethod: v.optional(v.string()), // "bank_transfer", "cash", "cheque"
+    notes: v.optional(v.string()),
+  })
+    .index("by_employee", ["employeeId"])
+    .index("by_month", ["payrollMonth"])
+    .index("by_status", ["status"])
+    .index("by_branch", ["branchId"]),
+
+  // Bonus & Incentive
+  hrBonusIncentive: defineTable({
+    bonusId: v.string(),
+    employeeId: v.id("hrEmployees"),
+    employeeName: v.string(),
+    branchId: v.id("branches"),
+    branchName: v.string(),
+    bonusType: v.string(), // "performance", "attendance", "sales", "milestone", "seasonal", "referral"
+    amount: v.number(),
+    percentage: v.optional(v.number()),
+    basedOn: v.string(), // What the bonus is based on
+    reason: v.string(),
+    approvedBy: v.optional(v.id("hrEmployees")),
+    approvedByName: v.optional(v.string()),
+    approvalDate: v.optional(v.number()),
+    disbursementDate: v.optional(v.number()),
+    status: v.string(), // "pending", "approved", "disbursed", "cancelled"
+    notes: v.optional(v.string()),
+  })
+    .index("by_employee", ["employeeId"])
+    .index("by_type", ["bonusType"])
+    .index("by_status", ["status"]),
+
+  // Performance Management
+  hrPerformance: defineTable({
+    performanceId: v.string(),
+    employeeId: v.id("hrEmployees"),
+    employeeName: v.string(),
+    reportingManagerId: v.id("hrEmployees"),
+    reportingManagerName: v.string(),
+    branchId: v.id("branches"),
+    branchName: v.string(),
+    evaluationPeriodStart: v.number(),
+    evaluationPeriodEnd: v.number(),
+    kpis: v.array(v.object({
+      kpiName: v.string(),
+      targetValue: v.number(),
+      achievedValue: v.number(),
+      weight: v.number(), // Weightage in %
+      score: v.number(), // 0-10
+    })),
+    overallScore: v.number(), // Average of all KPI scores
+    technicalSkills: v.optional(v.number()), // 0-10
+    communicationSkills: v.optional(v.number()),
+    teamworkSkills: v.optional(v.number()),
+    leadershipSkills: v.optional(v.number()),
+    strengths: v.string(),
+    areasForImprovement: v.string(),
+    goalsSetting: v.optional(v.string()),
+    reviewer: v.optional(v.id("users")),
+    reviewerName: v.optional(v.string()),
+    reviewDate: v.optional(v.number()),
+    status: v.string(), // "draft", "submitted", "reviewed", "completed"
+    comments: v.optional(v.string()),
+  })
+    .index("by_employee", ["employeeId"])
+    .index("by_period", ["evaluationPeriodStart", "evaluationPeriodEnd"])
+    .index("by_status", ["status"]),
+
+  // EPF/Provident Fund
+  hrProvidentFund: defineTable({
+    employeeId: v.id("hrEmployees"),
+    employeeName: v.string(),
+    accountNumber: v.string(),
+    memberType: v.string(), // "member", "employer", "both"
+    memberContribution: v.number(), // Employee contribution per month
+    employerContribution: v.number(), // Employer contribution per month
+    investmentChoice: v.optional(v.string()), // Fund type
+    totalBalance: v.number(),
+    lastContributionDate: v.optional(v.number()),
+    status: v.string(), // "active", "dormant", "closed"
+  })
+    .index("by_employee", ["employeeId"])
+    .index("by_account", ["accountNumber"]),
+
+  // ESI/Social Security
+  hrSocialSecurity: defineTable({
+    employeeId: v.id("hrEmployees"),
+    employeeName: v.string(),
+    esiNumber: v.string(),
+    employerContribution: v.number(), // Monthly contribution
+    employeeContribution: v.number(),
+    registeredDate: v.number(),
+    registrationStatus: v.string(), // "registered", "unregistered", "exempted"
+    coverageType: v.string(), // "medical", "disability", "cash_benefits", "all"
+    status: v.string(), // "active", "inactive", "closed"
+  })
+    .index("by_employee", ["employeeId"])
+    .index("by_esi_number", ["esiNumber"]),
+
+  // Salary Revision
+  hrSalaryRevision: defineTable({
+    revisionId: v.string(),
+    employeeId: v.id("hrEmployees"),
+    employeeName: v.string(),
+    effectiveDate: v.number(),
+    oldSalary: v.number(),
+    newSalary: v.number(),
+    percentageIncrease: v.number(),
+    reason: v.string(),
+    approvedBy: v.optional(v.id("hrEmployees")),
+    approvedByName: v.optional(v.string()),
+    approvalDate: v.optional(v.number()),
+    status: v.string(), // "pending", "approved", "implemented", "rejected"
+    notes: v.optional(v.string()),
+  })
+    .index("by_employee", ["employeeId"])
+    .index("by_effective_date", ["effectiveDate"]),
+
+  // ============================================
+  // USER MANAGEMENT TABLES
+  // ============================================
+
+  // User Roles/Permissions
+  userRoles: defineTable({
+    roleName: v.string(), // "Super Admin", "Admin", "Manager", "Staff"
+    description: v.string(),
+    permissions: v.array(v.string()), // ["user_management", "inventory", "sales", "reports", "settings"]
+    isActive: v.boolean(),
+    createdBy: v.optional(v.id("users")), // Optional to allow system initialization
+    createdByName: v.string(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_role_name", ["roleName"])
+    .index("by_active", ["isActive"]),
+
+  // User Management
+  userManagement: defineTable({
+    userId: v.string(), // USER-001
+    firstName: v.string(),
+    lastName: v.string(),
+    fullName: v.string(),
+    email: v.string(),
+    phone: v.optional(v.string()),
+    password: v.string(), // Hashed
+    avatar: v.optional(v.string()),
+    roleId: v.id("userRoles"),
+    roleName: v.string(),
+    branchId: v.optional(v.id("branches")),
+    branchName: v.optional(v.string()),
+    department: v.optional(v.string()),
+    designation: v.optional(v.string()),
+    joinDate: v.number(),
+    lastLogin: v.optional(v.number()),
+    status: v.string(), // "active", "inactive", "suspended", "archived"
+    isSuperAdmin: v.boolean(),
+    isAdmin: v.boolean(),
+    canManageUsers: v.boolean(),
+    canManageRoles: v.boolean(),
+    canAccessReports: v.boolean(),
+    canAccessSettings: v.boolean(),
+    twoFactorEnabled: v.boolean(),
+    twoFactorSecret: v.optional(v.string()),
+    lastPasswordChange: v.optional(v.number()),
+    passwordExpiresAt: v.optional(v.number()),
+    loginAttempts: v.number(), // For account lockout
+    isLocked: v.boolean(),
+    lockedUntil: v.optional(v.number()),
+    notes: v.optional(v.string()),
+    createdBy: v.optional(v.id("users")),
+    createdByName: v.optional(v.string()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_email", ["email"])
+    .index("by_user_id", ["userId"])
+    .index("by_role", ["roleId"])
+    .index("by_branch", ["branchId"])
+    .index("by_status", ["status"]),
+
+  // User Activity Log
+  userActivityLog: defineTable({
+    userId: v.id("userManagement"),
+    userName: v.string(),
+    action: v.string(), // "login", "logout", "create", "update", "delete", "export"
+    actionType: v.string(), // "user", "role", "inventory", "sales", "report"
+    details: v.string(),
+    ipAddress: v.optional(v.string()),
+    userAgent: v.optional(v.string()),
+    status: v.string(), // "success", "failed"
+    timestamp: v.number(),
+  })
+    .index("by_user", ["userId"])
+    .index("by_action", ["action"])
+    .index("by_timestamp", ["timestamp"]),
+
+  // User Session Management
+  userSessions: defineTable({
+    userId: v.id("userManagement"),
+    userName: v.string(),
+    sessionToken: v.string(),
+    ipAddress: v.string(),
+    userAgent: v.string(),
+    loginTime: v.number(),
+    lastActivity: v.number(),
+    expiresAt: v.number(),
+    isActive: v.boolean(),
+    deviceType: v.string(), // "desktop", "mobile", "tablet"
+    location: v.optional(v.string()),
+  })
+    .index("by_user", ["userId"])
+    .index("by_session_token", ["sessionToken"])
+    .index("by_active", ["isActive"]),
+
+  // User Permissions Override
+  userPermissionOverride: defineTable({
+    userId: v.id("userManagement"),
+    userName: v.string(),
+    permission: v.string(),
+    grantedBy: v.id("users"),
+    grantedByName: v.string(),
+    grantedAt: v.number(),
+    expiresAt: v.optional(v.number()),
+    reason: v.optional(v.string()),
+    isActive: v.boolean(),
+  })
+    .index("by_user", ["userId"])
+    .index("by_active", ["isActive"]),
+
+  // Password Reset Tokens
+  passwordResetTokens: defineTable({
+    userId: v.id("userManagement"),
+    email: v.string(),
+    token: v.string(),
+    expiresAt: v.number(),
+    isUsed: v.boolean(),
+    usedAt: v.optional(v.number()),
+    createdAt: v.number(),
+  })
+    .index("by_user", ["userId"])
+    .index("by_token", ["token"])
+    .index("by_email", ["email"]),
+
+  // User Audit Trail
+  userAuditTrail: defineTable({
+    userId: v.id("userManagement"),
+    userName: v.string(),
+    actionType: v.string(), // "created", "updated", "deleted", "suspended"
+    changedFields: v.object({
+      fieldName: v.string(),
+      oldValue: v.string(),
+      newValue: v.string(),
+    }),
+    changedBy: v.id("users"),
+    changedByName: v.string(),
+    reason: v.optional(v.string()),
+    timestamp: v.number(),
+  })
+    .index("by_user", ["userId"])
+    .index("by_timestamp", ["timestamp"]),
+
+  // ✅ Refund Management System
+  refunds: defineTable({
+    refundNumber: v.string(), // Unique refund ID
+    saleId: v.id("sales"),
+    saleNumber: v.string(),
+    branchId: v.id("branches"),
+    branchName: v.string(),
+    customerId: v.optional(v.id("customers")),
+    customerName: v.optional(v.string()),
+    customerPhone: v.optional(v.string()),
+    
+    // Refund items (can be partial)
+    items: v.array(v.object({
+      productId: v.id("products"),
+      productName: v.string(),
+      quantity: v.number(), // Quantity being refunded
+      unitPrice: v.number(),
+      totalPrice: v.number(),
+      size: v.optional(v.string()),
+      reason: v.string(), // "defective", "wrong_item", "customer_request", "expired", "other"
+      condition: v.string(), // "new", "used", "damaged"
+      notes: v.optional(v.string()),
+    })),
+    
+    // Financial details
+    subtotal: v.number(),
+    tax: v.number(),
+    discount: v.number(),
+    refundAmount: v.number(), // Total amount to refund
+    refundMethod: v.string(), // "cash", "mobile_banking", "card", "credit_account"
+    
+    // Payment reversal details
+    originalPaymentMethod: v.string(),
+    refundDetails: v.optional(v.object({
+      transactionId: v.optional(v.string()),
+      phoneNumber: v.optional(v.string()),
+      reference: v.optional(v.string()),
+      status: v.optional(v.string()),
+      remark: v.optional(v.string()),
+    })),
+    
+    // Status tracking
+    status: v.string(), // "pending", "approved", "processed", "completed", "rejected", "cancelled"
+    approvalStatus: v.optional(v.string()), // "pending_approval", "approved", "rejected"
+    
+    // Processing details
+    processedBy: v.optional(v.id("users")),
+    processedByName: v.optional(v.string()),
+    approvedBy: v.optional(v.id("users")),
+    approvedByName: v.optional(v.string()),
+    
+    // Dates & timestamps
+    requestDate: v.number(),
+    approvalDate: v.optional(v.number()),
+    processedDate: v.optional(v.number()),
+    completedDate: v.optional(v.number()),
+    
+    // Reason & notes
+    refundReason: v.string(), // "quality_issue", "change_of_mind", "wrong_product", "expired", "other"
+    refundNotes: v.optional(v.string()),
+    internalNotes: v.optional(v.string()),
+    
+    // Return tracking
+    isReturned: v.boolean(), // Whether physical goods returned
+    returnDate: v.optional(v.number()),
+    returnCondition: v.optional(v.string()), // "good", "fair", "damaged"
+    inspectionNotes: v.optional(v.string()),
+    
+    // Inventory impact
+    restockRequired: v.boolean(),
+    restockQuantity: v.optional(v.number()),
+    restockDate: v.optional(v.number()),
+    restockBranchId: v.optional(v.id("branches")),
+  })
+    .index("by_sale", ["saleId"])
+    .index("by_branch", ["branchId"])
+    .index("by_customer", ["customerId"])
+    .index("by_status", ["status"])
+    .index("by_approval_status", ["approvalStatus"])
+    .index("by_date", ["requestDate"])
+    .index("by_refund_method", ["refundMethod"]),
+
+  // Refund audit trail
+  refundAuditTrail: defineTable({
+    refundId: v.id("refunds"),
+    refundNumber: v.string(),
+    actionType: v.string(), // "created", "approved", "processed", "completed", "rejected", "status_changed"
+    previousStatus: v.optional(v.string()),
+    newStatus: v.string(),
+    performedBy: v.id("users"),
+    performedByName: v.string(),
+    timestamp: v.number(),
+    notes: v.optional(v.string()),
+  })
+    .index("by_refund", ["refundId"])
+    .index("by_date", ["timestamp"])
+    .index("by_user", ["performedBy"]),
+
+  // Refund settings & policies
+  refundPolicies: defineTable({
+    branchId: v.id("branches"),
+    branchName: v.string(),
+    
+    // Policies
+    allowRefunds: v.boolean(),
+    refundWindowDays: v.number(), // Days within which refund can be requested
+    requireApproval: v.boolean(), // Whether manager approval needed
+    maxRefundPercentage: v.number(), // Max % of sale amount
+    requireReturnedGoods: v.boolean(), // Must goods be returned?
+    allowPartialRefund: v.boolean(),
+    
+    // Default reasons
+    allowedReasons: v.array(v.string()),
+    requirePhotoEvidence: v.boolean(),
+    requireManagerApprovalAbove: v.number(), // Manager approval required if amount exceeds this
+    
+    // Automatic refund
+    autoApproveBelow: v.number(), // Auto-approve refunds below this amount
+    autoCompleteAfterDays: v.number(), // Auto-complete after X days if no action
+    
+    // Restocking
+    autoRestockRefundedItems: v.boolean(),
+    restockPenalty: v.optional(v.number()), // % deducted from refund for handling
+    
+    // Notifications
+    notifyManagerOnRefund: v.boolean(),
+    notifyCustomerOnApproval: v.boolean(),
+    notifyCustomerOnCompletion: v.boolean(),
+    
+    // Updated by
+    updatedBy: v.id("users"),
+    updatedByName: v.string(),
+    lastUpdated: v.number(),
+  })
+    .index("by_branch", ["branchId"]),
 };
 
 

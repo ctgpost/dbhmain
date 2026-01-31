@@ -8,6 +8,7 @@ export function Dashboard() {
   const categories = useQuery(api.categories.list) || [];
   const customers = useQuery(api.customers.list, {}) || [];
   const storeSettings = useQuery(api.settings.get);
+  const refunds = useQuery(api.refunds.list, {}) || [];
   
   const { isOnline, isSyncing } = useOfflineSync();
 
@@ -29,6 +30,13 @@ export function Dashboard() {
   today.setHours(0, 0, 0, 0);
   const todaysSales = sales.filter(sale => sale._creationTime >= today.getTime());
   const todayTotal = todaysSales.reduce((sum, sale) => sum + sale.total, 0);
+
+  // Refund statistics
+  const totalRefunds = refunds.length;
+  const totalRefundAmount = refunds.reduce((sum, r) => sum + r.refundAmount, 0);
+  const pendingRefunds = refunds.filter(r => r.approvalStatus === "pending_approval");
+  const completedRefunds = refunds.filter(r => r.status === "completed");
+  const refundRate = sales.length > 0 ? ((totalRefunds / sales.length) * 100).toFixed(1) : "0";
 
   // Top selling products
   const productSales = new Map<string, { name: string; quantity: number; revenue: number }>();
@@ -228,8 +236,8 @@ export function Dashboard() {
             </div>
           </div>
 
-          {/* Metrics Row 2: 4 Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+          {/* Metrics Row 2: 5 Cards (including Refunds) */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 sm:gap-6">
             {/* Total Customers */}
             <div className="bg-white rounded-xl border border-slate-200 hover:border-slate-300 hover:shadow-md transition-all p-6">
               <div className="flex items-start justify-between mb-4">
@@ -277,34 +285,97 @@ export function Dashboard() {
               </div>
               <p className="text-sm text-slate-600">Movement rate</p>
             </div>
+
+            {/* ✅ Refund Management Card */}
+            <div className="bg-white rounded-xl border border-slate-200 hover:border-slate-300 hover:shadow-md transition-all p-6">
+              <div className="flex items-start justify-between mb-4">
+                <div>
+                  <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Refunds</p>
+                  <p className="text-4xl font-bold text-slate-900">{totalRefunds}</p>
+                </div>
+                <div className="w-12 h-12 rounded-lg bg-amber-100 border border-amber-200 flex items-center justify-center text-xl">🔄</div>
+              </div>
+              <div className="space-y-1">
+                <p className="text-sm text-slate-600">৳{totalRefundAmount.toLocaleString('en-BD')} total</p>
+                <p className="text-xs text-slate-500">{refundRate}% refund rate</p>
+              </div>
+            </div>
           </div>
 
-          {/* Low Stock Alert */}
-          {lowStockProducts.length > 0 && (
-            <div className="bg-white rounded-xl border border-red-200 p-6">
-              <div className="flex items-center gap-3 mb-4">
-                <span className="text-2xl animate-pulse">⚠️</span>
-                <h3 className="text-lg font-bold text-red-900">Low Stock Alert</h3>
-                <span className="ml-auto inline-block px-3 py-1 rounded-full bg-red-100 text-red-700 text-xs font-semibold">
-                  {lowStockProducts.length} items
-                </span>
+          {/* Low Stock Alert & Refund Status */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Low Stock Alert */}
+            {lowStockProducts.length > 0 && (
+              <div className="bg-white rounded-xl border border-red-200 p-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="text-2xl animate-pulse">⚠️</span>
+                  <h3 className="text-lg font-bold text-red-900">Low Stock Alert</h3>
+                  <span className="ml-auto inline-block px-3 py-1 rounded-full bg-red-100 text-red-700 text-xs font-semibold">
+                    {lowStockProducts.length} items
+                  </span>
+                </div>
+                <p className="text-sm text-red-700 mb-4">{lowStockProducts.length} product(s) need restocking</p>
+                <div className="space-y-2">
+                  {lowStockProducts.slice(0, 4).map((product) => (
+                    <div key={product._id} className="bg-red-50 rounded-lg p-3 border border-red-200">
+                      <p className="text-sm font-semibold text-slate-900">{product.name}</p>
+                      <p className="text-xs text-red-700 mt-2">
+                        Stock: <span className="font-bold">{product.currentStock}</span> / Min: {product.minStockLevel}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+                {lowStockProducts.length > 4 && (
+                  <p className="text-xs text-red-700 mt-4 font-medium">+{lowStockProducts.length - 4} more items</p>
+                )}
               </div>
-              <p className="text-sm text-red-700 mb-4">{lowStockProducts.length} product(s) need restocking</p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                {lowStockProducts.slice(0, 6).map((product) => (
-                  <div key={product._id} className="bg-red-50 rounded-lg p-3 border border-red-200">
-                    <p className="text-sm font-semibold text-slate-900">{product.name}</p>
-                    <p className="text-xs text-red-700 mt-2">
-                      Stock: <span className="font-bold">{product.currentStock}</span> / Min: {product.minStockLevel}
+            )}
+
+            {/* ✅ Refund Status Card */}
+            <div className="bg-white rounded-xl border border-slate-200 p-6">
+              <div className="flex items-center gap-3 mb-6">
+                <span className="text-2xl">🔄</span>
+                <h3 className="text-lg font-bold text-slate-900">Refund Status</h3>
+              </div>
+
+              <div className="space-y-3">
+                {/* Pending Approvals */}
+                <div className={`rounded-lg p-4 border ${pendingRefunds.length > 0 ? 'bg-red-50 border-red-200' : 'bg-gray-50 border-gray-200'}`}>
+                  <div className="flex justify-between items-start mb-2">
+                    <p className={`text-xs font-semibold uppercase ${pendingRefunds.length > 0 ? 'text-red-700' : 'text-gray-700'}`}>
+                      Pending Approvals
+                    </p>
+                    <p className={`text-2xl font-bold ${pendingRefunds.length > 0 ? 'text-red-900' : 'text-gray-900'}`}>
+                      {pendingRefunds.length}
                     </p>
                   </div>
-                ))}
+                  {pendingRefunds.length > 0 && (
+                    <p className={`text-sm ${pendingRefunds.length > 0 ? 'text-red-700' : 'text-gray-700'}`}>
+                      Action required
+                    </p>
+                  )}
+                </div>
+
+                {/* Completed Refunds */}
+                <div className="bg-green-50 rounded-lg p-4 border border-green-200">
+                  <div className="flex justify-between items-start mb-2">
+                    <p className="text-xs font-semibold text-green-700 uppercase">Completed Refunds</p>
+                    <p className="text-2xl font-bold text-green-900">{completedRefunds.length}</p>
+                  </div>
+                  <p className="text-sm text-green-700">Processed successfully</p>
+                </div>
+
+                {/* Total Refund Amount */}
+                <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
+                  <div className="flex justify-between items-start mb-2">
+                    <p className="text-xs font-semibold text-blue-700 uppercase">Total Refunded</p>
+                    <p className="text-2xl font-bold text-blue-900">৳{totalRefundAmount.toLocaleString('en-BD')}</p>
+                  </div>
+                  <p className="text-sm text-blue-700">Refund rate: {refundRate}%</p>
+                </div>
               </div>
-              {lowStockProducts.length > 6 && (
-                <p className="text-xs text-red-700 mt-4 font-medium">+{lowStockProducts.length - 6} more items</p>
-              )}
             </div>
-          )}
+          </div>
 
           {/* Recent Sales Activity */}
           <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">

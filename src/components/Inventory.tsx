@@ -126,8 +126,10 @@ export default function Inventory() {
   // Common abaya sizes and colors - static arrays for performance
   const commonSizes = useMemo(() => ['50"', '52"', '54"', '56"', '58"', '60"', '62"'], []);
   const commonColors = useMemo(() => [
-    'Black', 'Navy Blue', 'Dark Brown', 'Maroon', 'Dark Green', 'Lemon', 'Pink', 'Mint', 
-    'Purple', 'Grey', 'Beige', 'White', 'Cream', 'Gold', 'Silver'
+    'Black', 'Sky Blue', 'Navy Blue', 'Dark Brown', 'Maroon', 'Dark Green', 'Lemon', 'Pink', 'Mint', 
+    'Purple', 'Grey', 'Beige', 'White', 'Cream', 'Gold', 'Silver', 'Red', 'Crimson', 'Burgundy', 'Wine', 'Coral', 'Peach', 'Rose Pink', 'Baby Pink', 'Hot Pink',
+'Fuchsia', 'Lavender', 'Lilac', 'Violet', 'Plum', 'Royal Blue', 'Cobalt Blue', 'Teal', 'Turquoise', 'Aqua', 'Sea Green', 'Olive', 'Olive Green', 'Bottle Green', 'Emerald Green',
+'Pista', 'Mustard', 'Amber', 'Rust', 'Copper', 'Bronze', 'Chocolate Brown', 'Coffee', 'Mocha', 'Camel', 'Khaki', 'Taupe', 'Charcoal', 'Ash', 'Off White', 'Ivory', 'Pearl', 'Champagne', 'Metallic Gold', 'Metallic Silver', 'Gunmetal', 'Midnight Blue', 'Indigo'
   ], []);
 
   // Memoized filtered and sorted products for optimal performance
@@ -345,9 +347,28 @@ export default function Inventory() {
         return;
       }
 
+      const { _id, _creationTime, branchStock, currentStock, ...productData } = editingProduct;
       await updateProduct({
-        id: editingProduct._id,
-        ...editingProduct,
+        id: _id,
+        name: productData.name,
+        brand: productData.brand,
+        model: productData.model,
+        categoryId: productData.categoryId,
+        style: productData.style,
+        fabric: productData.fabric,
+        color: productData.color,
+        sizes: productData.sizes,
+        embellishments: productData.embellishments,
+        occasion: productData.occasion,
+        costPrice: productData.costPrice,
+        sellingPrice: productData.sellingPrice,
+        barcode: productData.barcode,
+        productCode: productData.productCode,
+        madeBy: productData.madeBy,
+        minStockLevel: productData.minStockLevel,
+        maxStockLevel: productData.maxStockLevel,
+        description: productData.description,
+        isActive: productData.isActive,
       });
       toast.success("Product updated successfully!");
       setEditingProduct(null);
@@ -1039,89 +1060,331 @@ export default function Inventory() {
         </div>
       )}
 
-      {/* Edit Product Modal */}
+      {/* Edit Product Modal - Comprehensive */}
       {editingProduct && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6">
-              <div className="flex justify-between items-center mb-6">
-                <h3 className="text-lg font-semibold text-gray-900">Edit Product</h3>
-                <button
-                  onClick={() => setEditingProduct(null)}
-                  className="text-gray-400 hover:text-gray-600 transition-colors"
-                >
-                  ✕
-                </button>
-              </div>
+          <div className="bg-white rounded-lg max-w-5xl w-full max-h-[95vh] overflow-y-auto">
+            <div className="sticky top-0 bg-white border-b border-gray-200 p-6 flex justify-between items-center">
+              <h3 className="text-2xl font-bold text-gray-900">সম্পাদনা করুন - {editingProduct.name}</h3>
+              <button
+                onClick={() => setEditingProduct(null)}
+                className="text-gray-400 hover:text-gray-600 transition-colors text-2xl"
+              >
+                ✕
+              </button>
+            </div>
 
-              <div className="space-y-4">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="p-6 space-y-6">
+              {/* Basic Product Information */}
+              <div className="bg-gray-50 rounded-lg p-6">
+                <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                  <span className="bg-blue-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm">1</span>
+                  মৌলিক তথ্য
+                </h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Product Name
-                    </label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">পণ্যের নাম *</label>
                     <input
                       type="text"
                       value={editingProduct.name}
                       onChange={(e) => setEditingProduct({...editingProduct, name: e.target.value})}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 transition-all"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Brand
-                    </label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">ব্র্যান্ড *</label>
                     <input
                       type="text"
                       value={editingProduct.brand}
                       onChange={(e) => setEditingProduct({...editingProduct, brand: e.target.value})}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 transition-all"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Current Stock
-                    </label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">মডেল</label>
                     <input
-                      type="number"
-                      value={editingProduct.currentStock}
-                      onChange={(e) => setEditingProduct({...editingProduct, currentStock: Number(e.target.value)})}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 transition-all"
-                      min="0"
+                      type="text"
+                      value={editingProduct.model || ""}
+                      onChange={(e) => setEditingProduct({...editingProduct, model: e.target.value})}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Selling Price (৳)
-                    </label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">পণ্য কোড</label>
+                    <input
+                      type="text"
+                      value={editingProduct.productCode || ""}
+                      onChange={(e) => setEditingProduct({...editingProduct, productCode: e.target.value})}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">বারকোড</label>
+                    <input
+                      type="text"
+                      value={editingProduct.barcode || ""}
+                      onChange={(e) => setEditingProduct({...editingProduct, barcode: e.target.value})}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">নির্মাতা</label>
+                    <input
+                      type="text"
+                      value={editingProduct.madeBy || ""}
+                      onChange={(e) => setEditingProduct({...editingProduct, madeBy: e.target.value})}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Product Specifications */}
+              <div className="bg-gray-50 rounded-lg p-6">
+                <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                  <span className="bg-green-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm">2</span>
+                  পণ্যের বৈশিষ্ট্য
+                </h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">ফ্যাব্রিক *</label>
+                    <input
+                      type="text"
+                      value={editingProduct.fabric || ""}
+                      onChange={(e) => setEditingProduct({...editingProduct, fabric: e.target.value})}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 outline-none transition-all"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">রঙ *</label>
+                    <input
+                      type="text"
+                      value={editingProduct.color || ""}
+                      onChange={(e) => setEditingProduct({...editingProduct, color: e.target.value})}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 outline-none transition-all"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">স্টাইল</label>
+                    <input
+                      type="text"
+                      value={editingProduct.style || ""}
+                      onChange={(e) => setEditingProduct({...editingProduct, style: e.target.value})}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 outline-none transition-all"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">অনুষ্ঠান</label>
+                    <input
+                      type="text"
+                      value={editingProduct.occasion || ""}
+                      onChange={(e) => setEditingProduct({...editingProduct, occasion: e.target.value})}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 outline-none transition-all"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">সজ্জা</label>
+                    <input
+                      type="text"
+                      value={editingProduct.embellishments || ""}
+                      onChange={(e) => setEditingProduct({...editingProduct, embellishments: e.target.value})}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 outline-none transition-all"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">সাইজসমূহ (কমা দ্বারা আলাদা)</label>
+                    <input
+                      type="text"
+                      value={editingProduct.sizes ? editingProduct.sizes.join(", ") : ""}
+                      onChange={(e) => setEditingProduct({...editingProduct, sizes: e.target.value.split(",").map(s => s.trim()).filter(s => s)})}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 outline-none transition-all"
+                      placeholder='52", 54", 56"'
+                    />
+                  </div>
+                </div>
+
+                <div className="mt-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">বিবরণ</label>
+                  <textarea
+                    value={editingProduct.description || ""}
+                    onChange={(e) => setEditingProduct({...editingProduct, description: e.target.value})}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 outline-none transition-all h-24"
+                    placeholder="পণ্যের বিস্তারিত বিবরণ..."
+                  />
+                </div>
+              </div>
+
+              {/* Pricing Information */}
+              <div className="bg-gray-50 rounded-lg p-6">
+                <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                  <span className="bg-purple-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm">3</span>
+                  মূল্য নির্ধারণ
+                </h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">খরচ মূল্য (৳) *</label>
                     <input
                       type="number"
-                      value={editingProduct.sellingPrice}
-                      onChange={(e) => setEditingProduct({...editingProduct, sellingPrice: Number(e.target.value)})}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 transition-all"
+                      value={editingProduct.costPrice || 0}
+                      onChange={(e) => setEditingProduct({...editingProduct, costPrice: Number(e.target.value)})}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none transition-all"
                       min="0"
                       step="0.01"
                     />
                   </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">বিক্রয় মূল্য (৳) *</label>
+                    <input
+                      type="number"
+                      value={editingProduct.sellingPrice || 0}
+                      onChange={(e) => setEditingProduct({...editingProduct, sellingPrice: Number(e.target.value)})}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none transition-all"
+                      min="0"
+                      step="0.01"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">লাভ/ক্ষতি (৳)</label>
+                    <div className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white flex items-center">
+                      <span className={`font-semibold ${(editingProduct.sellingPrice || 0) - (editingProduct.costPrice || 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                        {((editingProduct.sellingPrice || 0) - (editingProduct.costPrice || 0)).toFixed(2)}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">মার্জিন (%)</label>
+                    <div className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white flex items-center">
+                      <span className={`font-semibold ${(editingProduct.costPrice || 0) > 0 ? ((((editingProduct.sellingPrice || 0) - (editingProduct.costPrice || 0)) / (editingProduct.costPrice || 0)) * 100) >= 0 ? 'text-green-600' : 'text-red-600' : 'text-gray-600'}`}>
+                        {(editingProduct.costPrice || 0) > 0 ? ((((editingProduct.sellingPrice || 0) - (editingProduct.costPrice || 0)) / (editingProduct.costPrice || 0)) * 100).toFixed(2) : "0.00"}%
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Stock Management */}
+              <div className="bg-gray-50 rounded-lg p-6">
+                <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                  <span className="bg-orange-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm">4</span>
+                  মজুদ ব্যবস্থাপনা
+                </h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">বর্তমান মজুদ</label>
+                    <input
+                      type="number"
+                      value={editingProduct.currentStock || 0}
+                      readOnly
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed"
+                      min="0"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">(শাখা জুড়ে মোট)</p>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">ন্যূনতম মজুদ স্তর</label>
+                    <input
+                      type="number"
+                      value={editingProduct.minStockLevel || 0}
+                      onChange={(e) => setEditingProduct({...editingProduct, minStockLevel: Number(e.target.value)})}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none transition-all"
+                      min="0"
+                      step="1"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">সর্বোচ্চ মজুদ স্তর</label>
+                    <input
+                      type="number"
+                      value={editingProduct.maxStockLevel || 0}
+                      onChange={(e) => setEditingProduct({...editingProduct, maxStockLevel: Number(e.target.value)})}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none transition-all"
+                      min="1"
+                      step="1"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">মজুদ অবস্থা</label>
+                    <div className={`w-full px-3 py-2 border border-gray-300 rounded-lg flex items-center font-medium ${getStockStatus(editingProduct).color}`}>
+                      {getStockStatus(editingProduct).status}
+                    </div>
+                  </div>
                 </div>
 
-                <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-gray-200">
-                  <button
-                    onClick={handleUpdateProduct}
-                    className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium transition-colors"
-                  >
-                    Update Product
-                  </button>
-                  <button
-                    onClick={() => setEditingProduct(null)}
-                    className="flex-1 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 font-medium transition-colors"
-                  >
-                    Cancel
-                  </button>
+                {/* Branch-wise Stock */}
+                {editingProduct.branchStock && editingProduct.branchStock.length > 0 && (
+                  <div className="mt-4">
+                    <label className="block text-sm font-semibold text-gray-800 mb-3">শাখা অনুযায়ী মজুদ:</label>
+                    <div className="space-y-2">
+                      {editingProduct.branchStock.map((branch: any, idx: number) => (
+                        <div key={idx} className="flex items-center justify-between bg-white p-3 rounded border border-gray-200">
+                          <span className="font-medium text-gray-700">{branch.branchName}</span>
+                          <div className="flex gap-4 items-center">
+                            <span className="text-sm text-gray-600">স্টক: {branch.currentStock}</span>
+                            <span className="text-sm text-gray-600">নূ: {branch.minStockLevel}</span>
+                            <span className="text-sm text-gray-600">সর্ব: {branch.maxStockLevel}</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Status and Additional Settings */}
+              <div className="bg-gray-50 rounded-lg p-6">
+                <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                  <span className="bg-indigo-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm">5</span>
+                  অন্যান্য সেটিংস
+                </h4>
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center">
+                    <input
+                      type="checkbox"
+                      checked={editingProduct.isActive}
+                      onChange={(e) => setEditingProduct({...editingProduct, isActive: e.target.checked})}
+                      className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
+                      id="isActive"
+                    />
+                    <label htmlFor="isActive" className="ml-2 text-sm font-medium text-gray-700">
+                      সক্রিয় পণ্য
+                    </label>
+                  </div>
+                  <div className={`px-3 py-1 rounded-full text-xs font-semibold ${editingProduct.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                    {editingProduct.isActive ? "সক্রিয়" : "নিষ্ক্রিয়"}
+                  </div>
                 </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex flex-col sm:flex-row gap-3 pt-6 border-t border-gray-200">
+                <button
+                  onClick={handleUpdateProduct}
+                  className="flex-1 px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold transition-colors flex items-center justify-center gap-2"
+                >
+                  <span>✓</span> পণ্য আপডেট করুন
+                </button>
+                <button
+                  onClick={() => setEditingProduct(null)}
+                  className="flex-1 px-4 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 font-semibold transition-colors flex items-center justify-center gap-2"
+                >
+                  <span>✕</span> বাতিল করুন
+                </button>
               </div>
             </div>
           </div>

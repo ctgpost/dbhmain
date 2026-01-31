@@ -343,6 +343,19 @@ export const update = mutation({
     
     const { id, ...updateData } = args;
     
+    // Update branch stock levels if min/max stock levels changed
+    let updatedBranchStock = existingProduct.branchStock;
+    if (
+      updateData.minStockLevel !== existingProduct.minStockLevel ||
+      updateData.maxStockLevel !== existingProduct.maxStockLevel
+    ) {
+      updatedBranchStock = existingProduct.branchStock.map((bs: any) => ({
+        ...bs,
+        minStockLevel: updateData.minStockLevel,
+        maxStockLevel: updateData.maxStockLevel,
+      }));
+    }
+    
     await ctx.db.patch(id, {
       name: updateData.name.trim(),
       brand: updateData.brand.trim(),
@@ -363,6 +376,7 @@ export const update = mutation({
       maxStockLevel: updateData.maxStockLevel,
       description: updateData.description?.trim(),
       isActive: updateData.isActive,
+      branchStock: updatedBranchStock,
     });
     
     return id;
@@ -392,32 +406,43 @@ export const adjustStock = mutation({
     const previousStock = product.currentStock;
     const difference = args.newStock - previousStock;
     
+    // Get first branch as default and update branch stock
+    const defaultBranch = await ctx.db.query("branches").first();
+    let updatedBranchStock = product.branchStock;
+    
+    if (defaultBranch && defaultBranch._id) {
+      updatedBranchStock = product.branchStock.map((bs: any) => {
+        if (bs.branchId === defaultBranch._id) {
+          return {
+            ...bs,
+            currentStock: args.newStock,
+          };
+        }
+        return bs;
+      });
+    }
+    
     await ctx.db.patch(args.productId, {
       currentStock: args.newStock,
+      branchStock: updatedBranchStock,
     });
     
     // Record stock movement
-    if (difference !== 0) {
-      // Get first branch as default
-      const defaultBranch = await ctx.db.query("branches").first();
-      
-      // Only record stock movement if a branch exists
-      if (defaultBranch && defaultBranch._id) {
-        await ctx.db.insert("stockMovements", {
-          productId: args.productId,
-          productName: product.name,
-          branchId: defaultBranch._id,
-          branchName: defaultBranch.name,
-          type: difference > 0 ? "in" : "out",
-          quantity: Math.abs(difference),
-          reason: args.reason,
-          notes: args.notes,
-          userId,
-          userName: user.name || user.email || "Unknown",
-          previousStock,
-          newStock: args.newStock,
-        });
-      }
+    if (difference !== 0 && defaultBranch && defaultBranch._id) {
+      await ctx.db.insert("stockMovements", {
+        productId: args.productId,
+        productName: product.name,
+        branchId: defaultBranch._id,
+        branchName: defaultBranch.name,
+        type: difference > 0 ? "in" : "out",
+        quantity: Math.abs(difference),
+        reason: args.reason,
+        notes: args.notes,
+        userId,
+        userName: user.name || user.email || "Unknown",
+        previousStock,
+        newStock: args.newStock,
+      });
     }
     
     return args.productId;
