@@ -8,7 +8,7 @@ import { RuleBasedUserManagement } from "./RuleBasedUserManagement";
 import CustomerLoyalty from "./CustomerLoyalty";
 import CouponManagement from "./CouponManagement";
 
-export function Settings() {
+export default function Settings() {
   const [activeTab, setActiveTab] = useState("general");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
@@ -390,7 +390,9 @@ export function Settings() {
         </div>
 
         {/* Main Content Area */}
-        <div className="flex-1 space-y-4 sm:space-y-6"
+        <div className="flex-1 space-y-4 sm:space-y-6">
+          {activeTab === "logo" && (
+            <>
             <h3 className="text-lg font-bold text-gray-900 mb-6">🎨 লোগো এবং টাইটেল ম্যানেজমেন্ট</h3>
             
             <div className="max-w-2xl mx-auto">
@@ -536,11 +538,10 @@ export function Settings() {
                 </p>
               </div>
             </div>
-          </div>
-        </div>
-      )}
+            </>
+          )}
 
-      {activeTab === "general" && (
+          {activeTab === "general" && (
         <div className="space-y-4 sm:space-y-6">
           <div className="bg-white rounded-lg shadow p-4 sm:p-6 border border-gray-200">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">General Settings</h3>

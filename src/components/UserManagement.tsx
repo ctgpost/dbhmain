@@ -577,7 +577,7 @@ export default function UserManagement() {
               onClick={async () => {
                 try {
                   const result = await seedRoles();
-                  if (result.createdRoles.length > 0) {
+                  if (result.createdRoles && result.createdRoles.length > 0) {
                     toast.success(result.message);
                   } else {
                     toast.info("সমস্ত ভূমিকা ইতিমধ্যে তৈরি করা হয়েছে");

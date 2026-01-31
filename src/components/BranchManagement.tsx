@@ -165,11 +165,11 @@ export function BranchManagement() {
       </div>
 
       {/* Stats Overview */}
-      {branchStats && (
+      {branchStats && Object.keys(branchStats).length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
           <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-sm border border-white/60 p-5 hover:shadow-md transition-all duration-300">
             <div className="text-2xl font-bold text-blue-700">
-              {selectedBranch ? branchStats.totalSales : branchStats.totalBranches}
+              {selectedBranch ? (branchStats as any).totalSales || 0 : (branchStats as any).totalBranches || 0}
             </div>
             <div className="text-xs text-gray-600 font-semibold uppercase tracking-wide mt-2">
               {selectedBranch ? "Total Sales" : "Active Branches"}
@@ -177,25 +177,25 @@ export function BranchManagement() {
           </div>
           <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-sm border border-white/60 p-5 hover:shadow-md transition-all duration-300">
             <div className="text-2xl font-bold text-green-700">
-              ৳{branchStats.totalRevenue?.toLocaleString('en-BD') || 0}
+              ৳{((branchStats as any).totalRevenue || 0).toLocaleString('en-BD')}
             </div>
             <div className="text-sm text-gray-600">Total Revenue</div>
           </div>
           <div className="bg-white rounded-lg shadow p-4 border border-gray-200">
             <div className="text-2xl font-bold text-purple-700">
-              {branchStats.totalEmployees || 0}
+              {(branchStats as any).totalEmployees || 0}
             </div>
             <div className="text-xs text-gray-600 font-semibold uppercase tracking-wide mt-2">Employees</div>
           </div>
           <div className="bg-white rounded-lg shadow p-4 border border-gray-200">
             <div className="text-2xl font-bold text-orange-700">
-              {branchStats.totalProducts || 0}
+              {(branchStats as any).totalProducts || 0}
             </div>
             <div className="text-xs text-gray-600 font-semibold uppercase tracking-wide mt-2">Products</div>
           </div>
           <div className="bg-white rounded-lg shadow p-4 border border-gray-200">
             <div className="text-2xl font-bold text-red-700">
-              {branchStats.lowStockProducts || 0}
+              {(branchStats as any).lowStockProducts || 0}
             </div>
             <div className="text-xs text-gray-600 font-semibold uppercase tracking-wide mt-2">Low Stock</div>
           </div>

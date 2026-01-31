@@ -100,7 +100,7 @@ export function InvoiceModal({ sale, onClose }: InvoiceModalProps) {
     if (storeSettings?.logo) {
       setShopSettings(prev => ({
         ...prev,
-        logo: storeSettings.logo
+        logo: storeSettings?.logo || prev.logo
       }));
     }
   }, [storeSettings]);

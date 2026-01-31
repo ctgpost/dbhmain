@@ -710,10 +710,10 @@ function CheckoutSection({
               type="tel"
               placeholder="Phone number (optional) - auto-fills saved address"
               value={customerInfo.phone}
-              onChange={(e) => handleCustomerPhoneChange(e.target.value)}
+              onChange={(e) => setCustomerInfo((prev: any) => ({ ...prev, phone: e.target.value }))}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
             />
-            {selectedCustomerId && (
+            {customerInfo.customerId && (
               <p className="text-xs text-green-600">✅ Customer found - delivery address auto-filled</p>
             )}
           </div>
@@ -798,7 +798,7 @@ function CheckoutSection({
                       value={paymentDetails.phoneNumber}
                       onChange={(e) => setPaymentDetails({ ...paymentDetails, phoneNumber: e.target.value })}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
-                      maxLength="11"
+                      maxLength={11}
                     />
                     {paymentDetails.phoneNumber && !/^01\d{9}$/.test(paymentDetails.phoneNumber.replace(/\D/g, '')) && (
                       <p className="text-xs text-red-600 mt-1">Invalid format. Must be 01XXXXXXXXX (11 digits)</p>
@@ -835,7 +835,7 @@ function CheckoutSection({
                         setPaymentDetails({ ...paymentDetails, reference: digitsOnly });
                       }}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
-                      maxLength="4"
+                      maxLength={4}
                     />
                     {paymentDetails.reference && paymentDetails.reference.length !== 4 && (
                       <p className="text-xs text-red-600 mt-1">Must be exactly 4 digits</p>

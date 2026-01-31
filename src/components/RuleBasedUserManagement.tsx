@@ -139,7 +139,7 @@ export function RuleBasedUserManagement() {
       if (editingRole) {
         await updateRoleMutation({
           roleId: editingRole._id as any,
-          name: newRole.name,
+          roleName: newRole.name,
           description: newRole.description,
           permissions: newRole.permissions,
         });
@@ -147,7 +147,7 @@ export function RuleBasedUserManagement() {
         setEditingRole(null);
       } else {
         await createRoleMutation({
-          name: newRole.name,
+          roleName: newRole.name,
           description: newRole.description,
           permissions: newRole.permissions,
         });
@@ -198,10 +198,10 @@ export function RuleBasedUserManagement() {
     setShowAddRule(true);
   };
 
-  const handleEditRole = (role: UserRole) => {
+  const handleEditRole = (role: UserRole | any) => {
     setEditingRole(role);
     setNewRole({
-      name: role.name,
+      name: role.name || role.roleName,
       description: role.description || "",
       permissions: role.permissions,
     });
@@ -524,13 +524,13 @@ export function RuleBasedUserManagement() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {roles && roles.length > 0 ? (
-              roles.map((role: UserRole) => (
+              roles.map((role: any) => (
                 <div
                   key={role._id}
                   className="bg-white rounded-lg border border-gray-200 p-4"
                 >
                   <div className="flex justify-between items-start mb-3">
-                    <h4 className="font-semibold text-gray-900">{role.name}</h4>
+                    <h4 className="font-semibold text-gray-900">{role.roleName}</h4>
                     <div className="space-x-2">
                       <button
                         onClick={() => handleEditRole(role)}

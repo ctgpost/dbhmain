@@ -318,7 +318,7 @@ export function Dashboard() {
                 <div className="space-y-2">
                   {lowStockProducts.slice(0, 4).map((product) => (
                     <div key={product._id} className="bg-red-50 rounded-lg p-2.5 sm:p-3 border border-red-200">
-                      <p className="text-xs sm:text-sm font-semibold text-red-900 truncate">{product.productName}</p>
+                      <p className="text-xs sm:text-sm font-semibold text-red-900 truncate">{product.name}</p>
                       <p className="text-xs text-red-700 mt-1">Stock: {product.currentStock} / Min: {product.minStockLevel}</p>
                     </div>
                   ))}
