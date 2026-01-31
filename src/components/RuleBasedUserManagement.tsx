@@ -556,7 +556,7 @@ export function RuleBasedUserManagement() {
                       Permissions:
                     </p>
                     <div className="flex flex-wrap gap-2">
-                      {role.permissions.map((permission) => (
+                      {role.permissions.map((permission: any) => (
                         <span
                           key={permission}
                           className="bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded"
